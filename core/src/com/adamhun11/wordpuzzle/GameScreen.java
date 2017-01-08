@@ -8,7 +8,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 
@@ -34,44 +36,97 @@ public class GameScreen implements Screen {
     float tableX, tableY;
     float size;
 
+    //Default values
+    Color bgColor = new Color(0.3f, 0.2f, 0.2f, 1f), mapColor = Color.CORAL;
 
-    int col = 5, row = 5;
+    int col, row;
 
     boolean dragged = false;
     int touchCol, touchRow;
 
+    boolean win;
 
-    public GameScreen(Game g){
+    final String VERT =
+            "attribute vec4 "+ShaderProgram.POSITION_ATTRIBUTE+";\n" +
+                    "attribute vec4 "+ShaderProgram.COLOR_ATTRIBUTE+";\n" +
+                    "attribute vec2 "+ShaderProgram.TEXCOORD_ATTRIBUTE+"0;\n" +
+
+                    "uniform mat4 u_projTrans;\n" +
+                    " \n" +
+                    "varying vec4 vColor;\n" +
+                    "varying vec2 vTexCoord;\n" +
+
+                    "void main() {\n" +
+                    "       vColor = "+ShaderProgram.COLOR_ATTRIBUTE+";\n" +
+                    "       vTexCoord = "+ShaderProgram.TEXCOORD_ATTRIBUTE+"0;\n" +
+                    "       gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" +
+                    "}";
+
+    final String FRAG =
+            //GL ES specific stuff
+            "#ifdef GL_ES\n" //
+                    + "#define LOWP lowp\n" //
+                    + "precision mediump float;\n" //
+                    + "#else\n" //
+                    + "#define LOWP \n" //
+                    + "#endif\n" + //
+                    "varying LOWP vec4 vColor;\n" +
+                    "varying vec2 vTexCoord;\n" +
+                    "uniform sampler2D u_texture;\n" +
+                    "uniform float grayscale;\n" +
+                    "void main() {\n" +
+                    "       vec4 texColor = texture2D(u_texture, vTexCoord);\n" +
+                    "       \n" +
+                    "       float gray = dot(texColor.rgb, vec3(0.299, 0.587, 0.114));\n" +
+                    "       texColor.rgb = mix(vec3(gray), texColor.rgb, grayscale);\n" +
+                    "       \n" +
+                    "       gl_FragColor = texColor * vColor;\n" +
+                    "}";
+
+    ShaderProgram shader;
+
+    public GameScreen(Game g, int lvlNum){
+
+        spriteBatch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
+        stage = new Stage();
+
+        if (Levels.levels.get(lvlNum - 1).letterTexture.equals("white")){
+            ShaderProgram.pedantic = false;
+            shader = new ShaderProgram(VERT, FRAG);
+            spriteBatch.setShader(shader);
+
+            bgColor = Color.BLACK;
+            mapColor = Color.WHITE;
+        }
+
         game = g;
+        win = false;
 
-        offsetX =  wx * 20;
-        offsetY = hx * 100;
-        tableX = wx * (399 - 2 * 20);
-        size = tableX / row;
-        offsetYUp = (666 - 100) * hx  - col * size;
-
+        row = col = (int) Math.sqrt(Levels.levels.get(lvlNum - 1).map.length());
         map = new String[col][row];
         puzzleWorld = "test";
-        String a = "XOOOX" +
-                "XsOXX" +
-                "bOOmO" +
-                "OOiOO" +
-                "XOOiO"
-                ;
+        String a = Levels.levels.get(lvlNum - 1).map;
         letters = new Array<Letter>();
+
+        offsetX =  wx * 20;
+        offsetY = hx * 150;
+        tableX = wx * (399 - 2 * 20);
+        size = tableX / row;
+        offsetYUp = (666 - 150) * hx  - col * size;
+
+        System.out.println(col + "  " + row);
 
         for (int i = 0; i < col; i++){
             for (int j = 0; j < row; j++){
                 map[i][j] = String.valueOf(a.charAt(i * col + j));
-                if (!map[i][j].equals("O") && !map[i][j].equals("X")){
+                if (!map[i][j].equals(".") && !map[i][j].equals("X")){
                     letters.add(new Letter(map[i][j].toUpperCase(), size, j * size + offsetX, (col - i) * size - size + offsetY, j+1, i+1, offsetX, offsetY, col));
                 }
             }
         }
 
-        spriteBatch = new SpriteBatch();
-        shapeRenderer = new ShapeRenderer();
-        stage = new Stage();
+
 
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
         spriteBatch.setProjectionMatrix(stage.getCamera().combined);
@@ -88,7 +143,7 @@ public class GameScreen implements Screen {
                     System.out.println(c);
                     System.out.println(r);
                     if (c > 0 && r > 0 && c < col + 1 && r < row + 1) {
-                        if (!map[c - 1][r - 1].equals("O") && !map[c - 1][r - 1].equals("X")) {
+                        if (!map[c - 1][r - 1].equals(".") && !map[c - 1][r - 1].equals("X")) {
                             dragged = true;
                             touchCol = c; touchRow = r;
                             System.out.println("Touched: " + map[c - 1][r - 1] + "    " + c + " " + r);
@@ -118,6 +173,7 @@ public class GameScreen implements Screen {
                 if (dc > touchCol && dr == touchRow) {
                     moveDown(i);
                 }
+
             }
         } else {
             dragged = false;
@@ -142,13 +198,13 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0.3f, 0.2f, 0.2f, 1);
+        Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         update(Gdx.graphics.getDeltaTime());
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.CORAL);
+        shapeRenderer.setColor(mapColor);
         for (int i = 0; i < col; i++){
             for (int j = 0; j < row; j++)
             {
@@ -161,7 +217,7 @@ public class GameScreen implements Screen {
                     } else if (i == 0 && j == row - 1){
                         if (!map[i + 1][j].equals("X")) { a = true; b = true;}
                         if (!map[i][j - 1].equals("X")) { a = true; d = true;}
-                    } else if (i == col - 1 && row == 0){
+                    } else if (i == col - 1 && j == 0){
                         if (!map[i - 1][j].equals("X")) { d = true; c = true;}
                         if (!map[i][j + 1].equals("X")) { b = true; c = true;}
                     } else if (i == col - 1 && j == row - 1){
@@ -190,7 +246,7 @@ public class GameScreen implements Screen {
                         if (!map[i][j - 1].equals("X")) { a = true; d = true;}
                     }
                     //shapeRenderer.rect(j * size + offsetX, (col - i) * size - size + offsetY, size, size);
-                    roundedRect(j * size + offsetX, (col - i) * size - size + offsetY, size, size, size / 5, a, b, c, d);
+                    roundedRect(j * size + offsetX, (col - i) * size - size + offsetY, size, size, size / 6, a, b, c, d);
                 }
             }
         }
@@ -239,15 +295,15 @@ public class GameScreen implements Screen {
     private void moveUp(int i){
         if (touchCol > 1) {
             int j = touchCol - 1;
-            while (map[j - 1][touchRow - 1].equals("O") && j > 1){
+            while (map[j - 1][touchRow - 1].equals(".") && j > 1){
                 j--;
             }
             if (j == 1)
-                if (map[j - 1][touchRow - 1].equals("O")) j--;
+                if (map[j - 1][touchRow - 1].equals(".")) j--;
             if (j < touchCol - 1){
                 letters.get(i).move(2);
                 letters.get(i).c = j + 1;
-                map[touchCol - 1][touchRow - 1] = "O";
+                map[touchCol - 1][touchRow - 1] = ".";
                 map[j][touchRow - 1] = letters.get(i).letter;
                 dragged = false;
 
@@ -263,15 +319,15 @@ public class GameScreen implements Screen {
     private void moveDown(int i){
         if (touchCol < col) {
             int j = touchCol - 1;
-            while (map[j + 1][touchRow - 1].equals("O") && j < col - 2){
+            while (map[j + 1][touchRow - 1].equals(".") && j < col - 2){
                 j++;
             }
             if (j == col - 2)
-                if (map[j + 1][touchRow - 1].equals("O")) j++;
+                if (map[j + 1][touchRow - 1].equals(".")) j++;
             if (j > touchCol - 1){
                 letters.get(i).move(3);
                 letters.get(i).c = j + 1;
-                map[touchCol - 1][touchRow - 1] = "O";
+                map[touchCol - 1][touchRow - 1] = ".";
                 map[j][touchRow - 1] = letters.get(i).letter;
                 dragged = false;
 
@@ -287,15 +343,15 @@ public class GameScreen implements Screen {
     private void moveRight(int i){
         if (touchRow < row) {
             int j = touchRow - 1;
-            while (map[touchCol - 1][j + 1].equals("O") && j < row - 2){
+            while (map[touchCol - 1][j + 1].equals(".") && j < row - 2){
                 j++;
             }
             if (j == row - 2)
-                if (map[touchCol - 1][j+1].equals("O")) j++;
+                if (map[touchCol - 1][j+1].equals(".")) j++;
             if (j > touchRow - 1){
                 letters.get(i).move(1);
                 letters.get(i).r = j + 1;
-                map[touchCol - 1][touchRow - 1] = "O";
+                map[touchCol - 1][touchRow - 1] = ".";
                 map[touchCol - 1][j] = letters.get(i).letter;
                 dragged = false;
 
@@ -311,15 +367,15 @@ public class GameScreen implements Screen {
     private void moveLeft(int i){
         if (touchRow > 1) {
             int j = touchRow - 1;
-            while (map[touchCol - 1][j-1].equals("O") && j > 1){
+            while (map[touchCol - 1][j-1].equals(".") && j > 1){
                 j--;
             }
             if (j == 1)
-                if (map[touchCol - 1][j-1].equals("O")) j--;
+                if (map[touchCol - 1][j-1].equals(".")) j--;
             if (j < touchRow - 1){
                 letters.get(i).move(0);
                 letters.get(i).r = j + 1;
-                map[touchCol - 1][touchRow - 1] = "O";
+                map[touchCol - 1][touchRow - 1] = ".";
                 map[touchCol - 1][j] = letters.get(i).letter;
                 dragged = false;
 
@@ -331,6 +387,7 @@ public class GameScreen implements Screen {
             }
         }
     }
+
 
     @Override
     public void resize(int width, int height) {
