@@ -22,7 +22,7 @@ public class GameScreen implements Screen {
     Game game;
     private String[][] map;
     char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase().toCharArray();
-    String puzzleWorld;
+    String word;
     Array<Letter> letters;
 
     ShapeRenderer shapeRenderer;
@@ -105,7 +105,7 @@ public class GameScreen implements Screen {
 
         row = col = (int) Math.sqrt(Levels.levels.get(lvlNum - 1).map.length());
         map = new String[col][row];
-        puzzleWorld = "test";
+        word = Levels.levels.get(lvlNum - 1).word;
         String a = Levels.levels.get(lvlNum - 1).map;
         letters = new Array<Letter>();
 
@@ -187,8 +187,7 @@ public class GameScreen implements Screen {
             if (letters.get(i).speedX != 0 || letters.get(i).speedY != 0) transition = true;
         }
         if (!transition)
-          inputHandler();
-
+            inputHandler();
     }
 
     @Override
@@ -388,6 +387,37 @@ public class GameScreen implements Screen {
         }
     }
 
+    //TODO show a level finished screen if solved() && !transition
+    //Tells whether the level is solved.
+    public boolean isSolved()
+    {
+        String firstLetter = word.substring(0, 1);
+
+        for(int y = 0; y < row; y++)
+            for (int x = 0; x < col; x++) {
+                if (map[y][x].equalsIgnoreCase(firstLetter)) {
+                    if(solve(x, y - 1, 0, 1)) return true;
+                    if(solve(x + 1, y, 1, 1)) return true;
+                    if(solve(x, y + 1, 2, 1)) return true;
+                }
+            }
+
+        return false;
+    }
+
+    //Recursive function for checking solution (direction: 0-up, 1-left, 2-down)
+    private boolean solve(int x, int y, int direction, int letterIndex)
+    {
+        if(letterIndex >= word.length()) return true;
+        if(x < 0 || x >= col || y < 0 || y >= row) return false;
+        if(!word.substring(letterIndex, letterIndex + 1).equalsIgnoreCase(map[y][x])) return false;
+
+        int nextX = x + (direction == 1 ? 1 : 0), nextY = y;
+        if(direction == 0) nextY--;
+        else if(direction == 2) nextY++;
+
+        return solve(nextX, nextY, direction, letterIndex + 1);
+    }
 
     @Override
     public void resize(int width, int height) {
