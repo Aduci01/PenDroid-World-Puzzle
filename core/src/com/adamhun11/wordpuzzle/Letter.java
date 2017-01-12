@@ -16,8 +16,11 @@ public class Letter {
     Sprite sprite;
 
     float speedX, speedY;
+    float fadeFloat;
 
-    public Letter(String l, float s, float x, float y, int ox, int oy, float offsetsX, float offsetY, int table){
+    boolean endTransition = false;
+
+    public Letter(String l, float s, float x, float y, int ox, int oy, float offsetsX, float offsetY, int table, float fadeFloat){
         letter = l;
         size = s;
         this.x = x;
@@ -25,6 +28,7 @@ public class Letter {
         offX = offsetsX; offY = offsetY;
 
         tableCol = table;
+        this.fadeFloat = fadeFloat;
 
         c = oy;
         r = ox;
@@ -48,6 +52,9 @@ public class Letter {
     }
 
     public void update(float dt){
+        if (fadeFloat > 0 && !endTransition) fadeFloat -= dt * size * 10;
+        if (endTransition) fadeFloat += dt * size * 10;
+
         x += speedX * dt;
         y += speedY * dt;
 
@@ -74,7 +81,7 @@ public class Letter {
 
     public void render(SpriteBatch spriteBatch){
         sprite.setSize(size, size);
-        sprite.setPosition(x, y);
+        sprite.setPosition(x, y - fadeFloat);
         sprite.draw(spriteBatch);
     }
 

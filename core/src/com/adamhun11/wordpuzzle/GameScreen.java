@@ -21,7 +21,6 @@ import com.badlogic.gdx.utils.Array;
 public class GameScreen implements Screen {
     Game game;
     private String[][] map;
-    char[] alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase().toCharArray();
     String word;
     Array<Letter> letters;
 
@@ -41,10 +40,10 @@ public class GameScreen implements Screen {
 
     int col, row;
 
+    int lvlNum;
+
     boolean dragged = false;
     int touchCol, touchRow;
-
-    boolean win;
 
     final String VERT =
             "attribute vec4 "+ShaderProgram.POSITION_ATTRIBUTE+";\n" +
@@ -85,12 +84,25 @@ public class GameScreen implements Screen {
 
     ShaderProgram shader;
 
+    boolean solved, endTransition;
+    float fadeFloat;
+
     public GameScreen(Game g, int lvlNum){
 
         spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         stage = new Stage();
+        game = g;
+        this.lvlNum = lvlNum;
 
+        init(lvlNum);
+
+        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
+        spriteBatch.setProjectionMatrix(stage.getCamera().combined);
+    }
+
+    private void init(int lvlNum){
+        solved = false; endTransition = false;
         if (Levels.levels.get(lvlNum - 1).letterTexture.equals("white")){
             ShaderProgram.pedantic = false;
             shader = new ShaderProgram(VERT, FRAG);
@@ -100,8 +112,6 @@ public class GameScreen implements Screen {
             mapColor = Color.WHITE;
         }
 
-        game = g;
-        win = false;
 
         row = col = (int) Math.sqrt(Levels.levels.get(lvlNum - 1).map.length());
         map = new String[col][row];
@@ -115,21 +125,20 @@ public class GameScreen implements Screen {
         size = tableX / row;
         offsetYUp = (666 - 150) * hx  - col * size;
 
-        System.out.println(col + "  " + row);
+        fadeFloat = offsetYUp + row * size;
+
 
         for (int i = 0; i < col; i++){
             for (int j = 0; j < row; j++){
                 map[i][j] = String.valueOf(a.charAt(i * col + j));
                 if (!map[i][j].equals(".") && !map[i][j].equals("X")){
-                    letters.add(new Letter(map[i][j].toUpperCase(), size, j * size + offsetX, (col - i) * size - size + offsetY, j+1, i+1, offsetX, offsetY, col));
+                    letters.add(new Letter(map[i][j].toUpperCase(), size, j * size + offsetX, (col - i) * size - size + offsetY, j+1, i+1, offsetX, offsetY, col, fadeFloat));
                 }
             }
         }
 
 
 
-        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
-        spriteBatch.setProjectionMatrix(stage.getCamera().combined);
     }
 
     private void inputHandler(){
@@ -174,6 +183,13 @@ public class GameScreen implements Screen {
                     moveDown(i);
                 }
 
+                if (isSolved()){
+                    System.out.println("Solved");
+                    solved = true;
+                    lvlNum++;
+                    endTransition = true;
+                }
+
             }
         } else {
             dragged = false;
@@ -181,13 +197,26 @@ public class GameScreen implements Screen {
     }
 
     private void update(float dt){
+
+
         boolean transition = false;
         for (int i = 0; i < letters.size; i++){
             letters.get(i).update(dt);
             if (letters.get(i).speedX != 0 || letters.get(i).speedY != 0) transition = true;
         }
-        if (!transition)
-            inputHandler();
+        if (!transition) {
+            //start transition
+            if (fadeFloat > 0 && !solved) fadeFloat -= size * 10 * dt;
+            if (endTransition){
+                for (Letter l : letters) l.endTransition = true;
+                fadeFloat += size * 10 * dt;
+                if (offsetY - fadeFloat + col * size < 0){
+                    System.out.println("sda");
+                    init(lvlNum);
+                }
+            } else
+                inputHandler();
+        }
     }
 
     @Override
@@ -245,7 +274,7 @@ public class GameScreen implements Screen {
                         if (!map[i][j - 1].equals("X")) { a = true; d = true;}
                     }
                     //shapeRenderer.rect(j * size + offsetX, (col - i) * size - size + offsetY, size, size);
-                    roundedRect(j * size + offsetX, (col - i) * size - size + offsetY, size, size, size / 6, a, b, c, d);
+                    roundedRect(j * size + offsetX, (col - i) * size - size + offsetY - fadeFloat, size, size, size / 6, a, b, c, d);
                 }
             }
         }
