@@ -19,6 +19,7 @@ public class GameLogic {
     private String[][] map;
     String word;
     Array<Letter> letters;
+    Array<Letter> solvedLetters;
 
     ShapeRenderer shapeRenderer;
     SpriteBatch spriteBatch;
@@ -133,6 +134,15 @@ public class GameLogic {
                 }
             }
         }
+        solvedLetters();
+    }
+
+    private void solvedLetters(){
+        solvedLetters = new Array<Letter>();
+        float sizeX = (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx;
+        for (int i = 0; i < Levels.levels.get(lvlNum - 1).word.length(); i++){
+            solvedLetters.add(new Letter(Character.toString(Levels.levels.get(lvlNum - 1).word.charAt(i)), sizeX, i * sizeX, Gdx.graphics.getHeight() - sizeX, 0,0,0,0,0,0));
+        }
     }
 
     private void inputHandler(){
@@ -205,7 +215,6 @@ public class GameLogic {
                 for (Letter l : letters) l.endTransition = true;
                 fadeFloat += size * 10 * dt;
                 if (offsetY - fadeFloat + col * size < 0){
-                    System.out.println("sda");
                     init(lvlNum);
                 }
             } else
@@ -270,6 +279,7 @@ public class GameLogic {
         spriteBatch.begin();
         for (int i = 0; i < letters.size; i++){
             letters.get(i).render(spriteBatch);
+            solvedLetters.get(i).render(spriteBatch);
         }
 
 

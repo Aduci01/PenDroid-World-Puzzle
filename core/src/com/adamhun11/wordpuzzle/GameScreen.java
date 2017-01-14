@@ -45,7 +45,8 @@ public class GameScreen implements Screen {
         stage = new Stage();
         skin = new Skin();
         pauseTable = new Table();
-        pauseTable.setPosition(-500f, -500f);
+        pauseTable.setPosition(-5000f, -5000f);
+        pauseTable.addAction(Actions.fadeOut(0));
         pauseTable.setSize(Gdx.graphics.getWidth() / 1.5f, Gdx.graphics.getHeight() / 2);
 
 
@@ -83,7 +84,7 @@ public class GameScreen implements Screen {
         TextButton resume = createTextButton("resume");
         resume.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
-                pauseTable.addAction(Actions.sequence(Actions.fadeOut(0.3f),Actions.moveTo(-500f, -500f, 0.4f)));
+                pauseTable.addAction(Actions.sequence(Actions.fadeOut(0.3f),Actions.moveTo(-5000f, -5000f, 0.4f)));
                 paused = false;
             }
         });
@@ -93,7 +94,7 @@ public class GameScreen implements Screen {
         TextButton restart = createTextButton("restart");
         restart.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
-                pauseTable.addAction(Actions.sequence(Actions.fadeOut(0.3f),Actions.moveTo(-500f, -500f, 0.4f)));
+                pauseTable.addAction(Actions.sequence(Actions.fadeOut(0.3f),Actions.moveTo(-5000f, -5000f, 0.4f)));
                 gameLogic.solved = true;
                 gameLogic.endTransition = true;
                 paused = false;
