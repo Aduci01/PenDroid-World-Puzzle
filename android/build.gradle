@@ -16,7 +16,7 @@ android {
     }
     defaultConfig {
         applicationId "com.adamhun11.wordpuzzle"
-        minSdkVersion 8
+        minSdkVersion 15
         targetSdkVersion 24
     }
 }

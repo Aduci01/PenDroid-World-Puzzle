@@ -8,6 +8,6 @@ public class Main extends Game {
 	public void create ()
 	{
 		Levels.init();
-		setScreen(new GameScreen(this, 3));
+		setScreen(new SplashScreen(this));
 	}
 }

@@ -18,8 +18,13 @@ public class Levels {
 
         Levels one = new Levels();
         one.lvlNum = 1;
+        one.word = "first";
         one.letterTexture = "normal";
-        //one.map =
+        one.map = "f.X.." +
+                ".r..." +
+                "..t.." +
+                "...i." +
+                "..X.s";
         levels.add(one);
 
         Levels two = new Levels();
@@ -65,9 +70,5 @@ public class Levels {
                 ".ls...sr." +
                 "e..oXc...";
         levels.add(four);
-
     }
-
-
-
 }

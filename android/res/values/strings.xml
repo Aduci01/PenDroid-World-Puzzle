@@ -2,5 +2,6 @@
 <resources>
 
     <string name="app_name">WordPuzzle</string>
+    <string name="facebook_app_id">224618371280693</string>
 
 </resources>
