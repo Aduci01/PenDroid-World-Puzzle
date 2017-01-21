@@ -106,6 +106,7 @@ public class GameScreen implements Screen {
         TextButton exit = createTextButton("exit");
         exit.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                game.setScreen(new Menu(game));
             }
         });
         pauseTable.add(exit).width(Gdx.graphics.getWidth() / 3f).height( Gdx.graphics.getWidth() / 4f / resume.getWidth() * resume.getHeight()).padBottom(20);

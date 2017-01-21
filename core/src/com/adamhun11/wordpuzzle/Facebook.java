@@ -1,12 +1,15 @@
 package com.adamhun11.wordpuzzle;
 
+import com.badlogic.gdx.Net;
 import com.badlogic.gdx.utils.Array;
 
 import de.tomgrill.gdxfacebook.core.GDXFacebook;
 import de.tomgrill.gdxfacebook.core.GDXFacebookCallback;
 import de.tomgrill.gdxfacebook.core.GDXFacebookConfig;
 import de.tomgrill.gdxfacebook.core.GDXFacebookError;
+import de.tomgrill.gdxfacebook.core.GDXFacebookGraphRequest;
 import de.tomgrill.gdxfacebook.core.GDXFacebookSystem;
+import de.tomgrill.gdxfacebook.core.JsonResult;
 import de.tomgrill.gdxfacebook.core.SignInMode;
 import de.tomgrill.gdxfacebook.core.SignInResult;
 
@@ -52,6 +55,40 @@ public class Facebook {
             public void onFail(Throwable t) {
                 // When the login fails
             }
+        });
+    }
+
+    public void share(){
+        GDXFacebookGraphRequest request = new GDXFacebookGraphRequest().setNode("me/feed").useCurrentAccessToken();
+        request.setMethod(Net.HttpMethods.POST);
+        request.putField("message", "Hey use this libGDX extensions");
+        //request.putField("link", "https://github.com/TomGrill/gdx-facebook");
+        //request.putField("caption", "gdx-facebook");
+
+        facebook.newGraphRequest(request, new GDXFacebookCallback<JsonResult>() {
+
+            @Override
+            public void onSuccess(JsonResult result) {
+                // Success
+            }
+
+            @Override
+            public void onError(GDXFacebookError error) {
+                // Error
+                System.out.println("Error");
+            }
+
+            @Override
+            public void onFail(Throwable t) {
+                // Fail
+                System.out.println("Fail");
+            }
+
+            @Override
+            public void onCancel() {
+                // Cancel
+            }
+
         });
     }
 

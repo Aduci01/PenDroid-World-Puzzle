@@ -70,5 +70,20 @@ public class Levels {
                 ".ls...sr." +
                 "e..oXc...";
         levels.add(four);
+
+        Levels five = new Levels();
+        five.lvlNum = 5;
+        five.word = "abcdefgh";
+        five.letterTexture = "normal";
+        five.map =
+                        "aX...b.." +
+                        "......gX" +
+                        "...f...." +
+                        ".....d.." +
+                        "........" +
+                        "........" +
+                        "X......e" +
+                        "...c..Xh";
+        levels.add(five);
     }
 }

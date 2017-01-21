@@ -39,7 +39,6 @@ public class SplashScreen implements Screen {
     public void render(float delta) {
         Gdx.gl.glClearColor(0.0f, 0.0f, 0.0f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        System.out.println(height / 800f);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.rect(0, 0, width, var);
         shapeRenderer.rect(0, height - var, width, var);
