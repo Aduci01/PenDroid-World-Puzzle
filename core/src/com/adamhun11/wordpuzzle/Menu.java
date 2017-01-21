@@ -2,6 +2,7 @@ package com.adamhun11.wordpuzzle;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -13,7 +14,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -41,6 +41,8 @@ public class Menu implements Screen {
 
     Facebook facebook;
 
+    int unlockedLevel;
+
 
     public Menu(Game g){
         game = g;
@@ -48,10 +50,20 @@ public class Menu implements Screen {
         facebook.init();
         facebook.logIn();
 
-        circle = new Sprite(new Texture("GUI/circle.png"));
         spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
 
+
+        Preferences prefs = Gdx.app.getPreferences("datas");
+        unlockedLevel = prefs.getInteger("unlockedLevel", 1);
+        initStage();
+        spriteBatch.setProjectionMatrix(stage.getCamera().combined);
+        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
+
+    }
+
+    private void initStage(){
+        circle = new Sprite(new Texture("GUI/circle.png"));
         stage = new Stage();
         skin = new Skin();
         skin.add("a", new Texture("GUI/transparent.png"));
@@ -72,11 +84,7 @@ public class Menu implements Screen {
         scrollPane.setPosition(Gdx.graphics.getWidth() / 2 - 55 * wx, Gdx.graphics.getHeight() / 2 - 95 * hx);
         scrollPane.setSize(120 * wx, 190 * hx);
         stage.addActor(scrollPane);
-
-        spriteBatch.setProjectionMatrix(stage.getCamera().combined);
-        shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
-
-
+        //FACEBOOK button
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.up = skin.newDrawable("fb", Color.BLUE);
         textButtonStyle.down = skin.newDrawable("fb", Color.DARK_GRAY);
@@ -100,6 +108,8 @@ public class Menu implements Screen {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("GUI/font.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = (int)(120 * wx);
+        if (unlockedLevel < num)
+            parameter.color = new Color(0.3f,0.3f,0.3f,1);
         BitmapFont font = generator.generateFont(parameter);
         generator.dispose();
 
@@ -117,11 +127,13 @@ public class Menu implements Screen {
         button.setText(Integer.toString(num));
 
         final int lvl = num;
-        button.addListener(new ChangeListener() {
-            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
-                game.setScreen(new GameScreen(game, lvl));
-            }
-        });
+        if (unlockedLevel >= num) {
+            button.addListener(new ChangeListener() {
+                public void changed(ChangeListener.ChangeEvent event, Actor actor) {
+                    game.setScreen(new GameScreen(game, lvl));
+                }
+            });
+        }
         return button;
     }
 
