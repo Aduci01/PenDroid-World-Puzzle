@@ -25,7 +25,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
  */
 
 public class Menu implements Screen {
-    Game game;
+    Main game;
     Stage stage;
     Skin skin;
     SpriteBatch spriteBatch;
@@ -44,7 +44,7 @@ public class Menu implements Screen {
     int unlockedLevel;
 
 
-    public Menu(Game g){
+    public Menu(Main g){
         game = g;
         facebook = new Facebook();
         facebook.init();
@@ -63,11 +63,11 @@ public class Menu implements Screen {
     }
 
     private void initStage(){
-        circle = new Sprite(new Texture("GUI/circle.png"));
+        circle = new Sprite(game.assets.get("GUI/circle.png", Texture.class));
         stage = new Stage();
         skin = new Skin();
-        skin.add("a", new Texture("GUI/transparent.png"));
-        skin.add("fb", new Texture("GUI/buttons/fb.png"));
+        skin.add("a", game.assets.get("GUI/transparent.png", Texture.class));
+        skin.add("fb", game.assets.get("GUI/buttons/fb.png", Texture.class));
         BitmapFont bfont = new BitmapFont();
         skin.add("default",bfont);
 
@@ -105,13 +105,10 @@ public class Menu implements Screen {
     }
 
     private TextButton createTextButton(String name, int num){
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("GUI/font.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = (int)(120 * wx);
+        BitmapFont font;
         if (unlockedLevel < num)
-            parameter.color = new Color(0.3f,0.3f,0.3f,1);
-        BitmapFont font = generator.generateFont(parameter);
-        generator.dispose();
+            font = game.assets.get("GUI/font-grey.ttf", BitmapFont.class);
+        else font = game.assets.get("GUI/font-black.ttf", BitmapFont.class);
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.up = skin.newDrawable(name, Color.GREEN);
