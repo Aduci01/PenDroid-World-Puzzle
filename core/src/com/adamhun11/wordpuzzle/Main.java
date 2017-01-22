@@ -21,12 +21,12 @@ public class Main extends Game {
 	@Override
 	public void create ()
 	{
-		System.out.println("" + Gdx.graphics.getWidth() / 399);
-		Levels.init();
+		com.adamhun11.wordpuzzle.Game.Levels.init();
+
 		loadAssets();
 		assets.finishLoading(); //TODO load asynchronously
 
-		setScreen(new Menu(this));
+		setScreen(new com.adamhun11.wordpuzzle.Screens.SplashScreen(this));
 	}
 
 	private void loadAssets()

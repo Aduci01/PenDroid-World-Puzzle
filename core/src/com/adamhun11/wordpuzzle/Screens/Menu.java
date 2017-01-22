@@ -30,6 +30,7 @@ public class Menu implements Screen {
     Skin skin;
     SpriteBatch spriteBatch;
     ShapeRenderer shapeRenderer;
+    BitmapFont lvlFont;
 
     Table levelTable;
     ScrollPane scrollPane;
@@ -48,33 +49,45 @@ public class Menu implements Screen {
         game = g;
         facebook = new Facebook();
         facebook.init();
-        facebook.logIn();
 
         spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
-
+        initFonts();
 
         Preferences prefs = Gdx.app.getPreferences("datas");
         unlockedLevel = prefs.getInteger("unlockedLevel", 1);
         initStage();
+        stage.addAction(Actions.sequence(Actions.fadeOut(0), Actions.fadeIn(1f)));
         spriteBatch.setProjectionMatrix(stage.getCamera().combined);
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
 
     }
 
+    private void initFonts(){
+        SmartFontGenerator fontGen = new SmartFontGenerator();
+        FileHandle exoFile = Gdx.files.internal("GUI/font.ttf");
+        lvlFont = fontGen.createFont(exoFile, "font", (int)(120 * wx));
+    }
+
     private void initStage(){
         circle = new Sprite(game.assets.get("GUI/circle.png", Texture.class));
+
         stage = new Stage();
         skin = new Skin();
         skin.add("a", game.assets.get("GUI/transparent.png", Texture.class));
         skin.add("fb", game.assets.get("GUI/buttons/fb.png", Texture.class));
+        Image image = new Image(circle);
+        image.setSize(200 * wx, 200 * wx);
+        image.setPosition(Gdx.graphics.getWidth() / 2 - 100 * wx, Gdx.graphics.getHeight() / 2 - 100 * hx);
+        stage.addActor(image);
+
         BitmapFont bfont = new BitmapFont();
         skin.add("default",bfont);
 
         levelTable = new Table();
         levelTable.setPosition(0,0);
 
-        for (int i = 1; i <= Levels.levels.size; i++){
+        for (int i = 1; i <= com.adamhun11.wordpuzzle.Game.Levels.levels.size; i++){
             levelTable.add(createTextButton("a", i)).padBottom(50 * hx).padTop(50 * hx);
             levelTable.row();
         }
@@ -82,14 +95,14 @@ public class Menu implements Screen {
         scrollPane = new ScrollPane(levelTable);
         scrollPane.setScrollingDisabled(true, false);
         scrollPane.setPosition(Gdx.graphics.getWidth() / 2 - 55 * wx, Gdx.graphics.getHeight() / 2 - 95 * hx);
-        scrollPane.setSize(120 * wx, 190 * hx);
+        scrollPane.setSize(120 * wx, 190 * wx);
         stage.addActor(scrollPane);
         //FACEBOOK button
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = skin.newDrawable("fb", Color.BLUE);
+        textButtonStyle.up = skin.newDrawable("fb", Color.GREEN);
         textButtonStyle.down = skin.newDrawable("fb", Color.DARK_GRAY);
         textButtonStyle.checked = skin.newDrawable("fb", Color.GREEN);
-        textButtonStyle.over = skin.newDrawable("fb", Color.GREEN);
+        textButtonStyle.over = skin.newDrawable("fb", Color.BLUE);
         textButtonStyle.font = new BitmapFont();
         skin.add("default", textButtonStyle);
 
@@ -97,6 +110,7 @@ public class Menu implements Screen {
         button.setSize(wx * button.getWidth() / 4, hx * button.getHeight() / 4);
         button.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                facebook.logIn();
                 facebook.share();
             }
         });
@@ -105,24 +119,19 @@ public class Menu implements Screen {
     }
 
     private TextButton createTextButton(String name, int num){
-        BitmapFont font;
-        if (unlockedLevel < num)
-            font = game.assets.get("GUI/font-grey.ttf", BitmapFont.class);
-        else font = game.assets.get("GUI/font-black.ttf", BitmapFont.class);
-
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        final TextButton button;
         textButtonStyle.up = skin.newDrawable(name, Color.GREEN);
         textButtonStyle.down = skin.newDrawable(name, Color.DARK_GRAY);
         textButtonStyle.checked = skin.newDrawable(name, Color.GREEN);
         textButtonStyle.over = skin.newDrawable(name, Color.GREEN);
-        textButtonStyle.font = font;
+        textButtonStyle.font = lvlFont;
 
         skin.add("default", textButtonStyle);
 
-        final TextButton button = new TextButton("",textButtonStyle);
+        button = new TextButton("",textButtonStyle);
         button.setSize(wx * button.getWidth(), hx * button.getHeight());
         button.setText(Integer.toString(num));
-
         final int lvl = num;
         if (unlockedLevel >= num) {
             button.addListener(new ChangeListener() {
@@ -130,7 +139,7 @@ public class Menu implements Screen {
                     game.setScreen(new GameScreen(game, lvl));
                 }
             });
-        }
+        } else button.getLabel().setColor(Color.DARK_GRAY);
         return button;
     }
 
@@ -161,11 +170,11 @@ scrollPane.setScrollPercentY(scrollPane.getScrollPercentY() + 1f/39);
         //System.out.println (scrollPane.getScrollPercentY() * 100 % (100/40));
 
 
-        spriteBatch.begin();
+       /* spriteBatch.begin();
         circle.setSize(200 * wx, 200 * wx);
         circle.setPosition(Gdx.graphics.getWidth() / 2 - 100 * wx, Gdx.graphics.getHeight() / 2 - 100 * hx);
         circle.draw(spriteBatch);
-        spriteBatch.end();
+        spriteBatch.end();*/
 
 
 

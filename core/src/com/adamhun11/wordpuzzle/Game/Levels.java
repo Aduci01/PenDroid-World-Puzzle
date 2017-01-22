@@ -1,4 +1,4 @@
-package com.adamhun11.wordpuzzle;
+package com.adamhun11.wordpuzzle.Game;
 
 import com.badlogic.gdx.utils.Array;
 
@@ -27,6 +27,31 @@ public class Levels {
                 "..X.s";
         levels.add(one);
 
+
+        Levels drive = new Levels();
+        drive.word = "drive";
+        drive.letterTexture = "normal";
+        drive.map =
+                "d.X.r" +
+                        "....." +
+                        "X.e.X" +
+                        "....." +
+                        "v.X.i";
+        levels.add(drive);
+
+
+        Levels miles = new Levels();
+        miles.word = "miles";
+        miles.letterTexture = "normal";
+        miles.map =
+                "m.lXX" +
+                        "...XX" +
+                        "....e" +
+                        "..XX." +
+                        "i.sXX";
+        levels.add(miles);
+
+
         Levels two = new Levels();
         two.lvlNum = 2;
         two.word = "second";
@@ -39,6 +64,22 @@ public class Levels {
                 "c....n" +
                 "X....X";
         levels.add(two);
+
+
+        Levels forever = new Levels();
+        forever.word = "forever";
+        forever.letterTexture = "normal";
+        forever.map =
+                "XXX.o.XXX" +
+                "XX.....XX" +
+                "Xf.....rX" +
+                "........." +
+                "......v.." +
+                "....e...." +
+                ".......X." +
+                ".eXX....." +
+                "........r";
+        levels.add(forever);
 
 
         Levels three = new Levels();
