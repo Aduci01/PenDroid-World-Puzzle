@@ -21,9 +21,9 @@ public class SplashScreen implements Screen {
     private float var = 1, var2 = 1;
     private float speed = height * 2, speed2 = width;
 
-    Game game;
+    Main game;
 
-    public SplashScreen(Game g){
+    public SplashScreen(Main g){
         game = g;
         stage = new Stage();
         shapeRenderer = new ShapeRenderer();
