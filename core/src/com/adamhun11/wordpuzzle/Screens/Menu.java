@@ -1,9 +1,12 @@
-package com.adamhun11.wordpuzzle;
+package com.adamhun11.wordpuzzle.Screens;
 
-import com.badlogic.gdx.Game;
+import com.adamhun11.wordpuzzle.Facebook;
+import com.adamhun11.wordpuzzle.Main;
+import com.adamhun11.wordpuzzle.SmartFontGenerator;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,6 +17,8 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -76,6 +81,7 @@ public class Menu implements Screen {
         skin = new Skin();
         skin.add("a", game.assets.get("GUI/transparent.png", Texture.class));
         skin.add("fb", game.assets.get("GUI/buttons/fb.png", Texture.class));
+
         Image image = new Image(circle);
         image.setSize(200 * wx, 200 * wx);
         image.setPosition(Gdx.graphics.getWidth() / 2 - 100 * wx, Gdx.graphics.getHeight() / 2 - 100 * hx);

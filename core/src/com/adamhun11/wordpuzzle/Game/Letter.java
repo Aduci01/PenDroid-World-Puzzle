@@ -1,5 +1,6 @@
 package com.adamhun11.wordpuzzle.Game;
 
+import com.adamhun11.wordpuzzle.Main;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -34,9 +35,6 @@ public class Letter {
         r = ox;
 
         sprite = new Sprite(game.assets.get("letters/" + l.toUpperCase() + ".png", Texture.class));
-        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        sprite = new Sprite(texture);
-
     }
 
     public void move(int a){

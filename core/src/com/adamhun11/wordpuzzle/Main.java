@@ -4,6 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.FileHandleResolver;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -36,6 +37,7 @@ public class Main extends Game {
 		assets.load("GUI/circle.png", Texture.class);
 		assets.load("GUI/transparent.png", Texture.class);
 		assets.load("GUI/buttons/fb.png", Texture.class);
+		assets.load("GUI/bg/background.png", Texture.class);
 
 		/*
 		FileHandleResolver resolver = assets.getFileHandleResolver();
@@ -49,6 +51,11 @@ public class Main extends Game {
 		font.fontParameters.color = new Color(0.3f,0.3f,0.3f,1);
 		assets.load("GUI/font-grey.ttf", BitmapFont.class, font);
 		*/
+
+		SmartFontGenerator fontGen = new SmartFontGenerator();
+		FileHandle exoFile = Gdx.files.internal("GUI/font.ttf");
+		BitmapFont font = fontGen.createFont(exoFile, "font",
+				(int)(120 * ((float)Gdx.graphics.getWidth()) / 399));
 
 		for(int i = 0; i < alphabet.length(); i++)
 			assets.load("letters/" + alphabet.charAt(i) + ".png", Texture.class);

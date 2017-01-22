@@ -2,6 +2,7 @@ package com.adamhun11.wordpuzzle.Game;
 
 import com.adamhun11.wordpuzzle.Game.Letter;
 import com.adamhun11.wordpuzzle.Game.Levels;
+import com.adamhun11.wordpuzzle.Main;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;

@@ -1,5 +1,6 @@
 package com.adamhun11.wordpuzzle.Screens;
 
+import com.adamhun11.wordpuzzle.Main;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
