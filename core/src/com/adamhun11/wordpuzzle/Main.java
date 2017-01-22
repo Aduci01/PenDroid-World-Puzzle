@@ -6,7 +6,7 @@ public class Main extends Game {
 	@Override
 	public void create ()
 	{
-		Levels.init();
-		setScreen(new Menu(this));
+		com.adamhun11.wordpuzzle.Game.Levels.init();
+		setScreen(new com.adamhun11.wordpuzzle.Screens.SplashScreen(this));
 	}
 }

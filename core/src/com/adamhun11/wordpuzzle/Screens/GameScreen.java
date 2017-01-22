@@ -1,17 +1,11 @@
-package com.adamhun11.wordpuzzle;
+package com.adamhun11.wordpuzzle.Screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
@@ -20,8 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.utils.Array;
 
 /**
  * Created by Adam on 2017. 01. 01..
@@ -29,7 +21,7 @@ import com.badlogic.gdx.utils.Array;
 
 public class GameScreen implements Screen {
     Game game;
-    GameLogic gameLogic;
+    com.adamhun11.wordpuzzle.Game.GameLogic gameLogic;
 
     Stage stage;
     Table pauseTable;
@@ -58,11 +50,17 @@ public class GameScreen implements Screen {
         BitmapFont bfont = new BitmapFont();
         skin.add("default",bfont);
 
+
+        Image image = new Image(new Texture("GUI/bg/background.png"));
+        image.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        image.setPosition(0,0);
+       // stage.addActor(image);
         initButtons();
         stage.addActor(pauseTable);
 
+
         game = g;
-        gameLogic = new GameLogic(stage, lvlNum);
+        gameLogic = new com.adamhun11.wordpuzzle.Game.GameLogic(stage, lvlNum);
         stage.addAction(Actions.sequence(Actions.fadeOut(0f), Actions.fadeIn(0.5f)));
     }
 
@@ -142,10 +140,10 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         if (!paused)
          gameLogic.update(delta);
-        gameLogic.render(delta);
-        stage.act();
 
+        gameLogic.render(delta);
         stage.draw();
+        stage.act();
     }
 
 

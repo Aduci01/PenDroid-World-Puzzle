@@ -1,4 +1,4 @@
-package com.adamhun11.wordpuzzle;
+package com.adamhun11.wordpuzzle.Screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -47,7 +47,7 @@ public class SplashScreen implements Screen {
             shapeRenderer.rect(0, height / 2 - 1 * height / 800f, var2, 2f * height / 800f);
             shapeRenderer.rect(width - var2, height / 2 - 1 * height / 800f, var2, 2f * height / 800f);
             var2 += speed2 * Gdx.graphics.getDeltaTime();
-            if (width - var2 < 0) game.setScreen(new GameScreen(game, 1));
+            if (width - var2 < 0) game.setScreen(new Menu(game));
         } else {
             var += speed * Gdx.graphics.getDeltaTime();
             speed -= speed / 20;
