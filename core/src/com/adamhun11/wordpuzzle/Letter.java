@@ -20,7 +20,7 @@ public class Letter {
 
     boolean endTransition = false;
 
-    public Letter(String l, float s, float x, float y, int ox, int oy, float offsetsX, float offsetY, int table, float fadeFloat){
+    public Letter(Main game, String l, float s, float x, float y, int ox, int oy, float offsetsX, float offsetY, int table, float fadeFloat){
         letter = l;
         size = s;
         this.x = x;
@@ -33,9 +33,7 @@ public class Letter {
         c = oy;
         r = ox;
 
-        Texture texture = new Texture("letters/" + l + ".png");
-        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        sprite = new Sprite(texture);
+        sprite = new Sprite(game.assets.get("letters/" + l + ".png", Texture.class));
     }
 
     public void move(int a){
