@@ -28,7 +28,7 @@ import com.badlogic.gdx.utils.Array;
  */
 
 public class GameScreen implements Screen {
-    Game game;
+    Main game;
     GameLogic gameLogic;
 
     Stage stage;
@@ -41,7 +41,7 @@ public class GameScreen implements Screen {
 
     boolean paused = false;
 
-    public GameScreen(Game g, int lvlNum) {
+    public GameScreen(Main g, int lvlNum) {
         stage = new Stage();
         skin = new Skin();
         pauseTable = new Table();
@@ -50,11 +50,11 @@ public class GameScreen implements Screen {
         pauseTable.setSize(Gdx.graphics.getWidth() / 1.5f, Gdx.graphics.getHeight() / 2);
 
 
-        skin.add("pause", new Texture("GUI/buttons/pause.png"));
-        skin.add("exit", new Texture("GUI/buttons/exit.png"));
-        skin.add("resume", new Texture("GUI/buttons/resume.png"));
-        skin.add("restart", new Texture("GUI/buttons/restart.png"));
-        skin.add("bg", new Texture("GUI/menus/pause_menu.png"));
+        skin.add("pause", g.assets.get("GUI/buttons/pause.png", Texture.class));
+        skin.add("exit", g.assets.get("GUI/buttons/exit.png", Texture.class));
+        skin.add("resume", g.assets.get("GUI/buttons/resume.png", Texture.class));
+        skin.add("restart", g.assets.get("GUI/buttons/restart.png", Texture.class));
+        skin.add("bg", g.assets.get("GUI/menus/pause_menu.png", Texture.class));
         BitmapFont bfont = new BitmapFont();
         skin.add("default",bfont);
 
@@ -62,7 +62,7 @@ public class GameScreen implements Screen {
         stage.addActor(pauseTable);
 
         game = g;
-        gameLogic = new GameLogic(stage, lvlNum);
+        gameLogic = new GameLogic(game, stage, lvlNum);
         stage.addAction(Actions.sequence(Actions.fadeOut(0f), Actions.fadeIn(0.5f)));
     }
 
