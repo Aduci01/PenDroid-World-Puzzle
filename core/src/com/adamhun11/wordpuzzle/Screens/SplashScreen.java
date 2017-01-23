@@ -53,8 +53,6 @@ public class SplashScreen implements Screen {
             var += speed * Gdx.graphics.getDeltaTime();
             speed -= speed / 20;
         }
-
-
         shapeRenderer.end();
 
         stage.act();

@@ -9,24 +9,32 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 
 public class Main extends Game {
 	public AssetManager assets;
 	final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVXYZ";
 	private boolean lettersLoaded = false;
+	public BitmapFont font;
+	private Texture bg;
+	private SpriteBatch spriteBatch;
+	private boolean loaded = false;
 
 	@Override
 	public void create ()
 	{
 		com.adamhun11.wordpuzzle.Game.Levels.init();
-
+		bg = new Texture("GUI/bg/background.png");
+		spriteBatch = new SpriteBatch();
 		loadAssets();
-		assets.finishLoading(); //TODO load asynchronously
+		//assets.finishLoading(); //TODO load asynchronously
 
-		setScreen(new com.adamhun11.wordpuzzle.Screens.SplashScreen(this));
 	}
 
 	private void loadAssets()
@@ -45,15 +53,14 @@ public class Main extends Game {
 
 		FreetypeFontLoader.FreeTypeFontLoaderParameter font = new FreetypeFontLoader.FreeTypeFontLoaderParameter();
 		font.fontFileName = "GUI/font.ttf";
-		font.fontParameters.size = Gdx.graphics.getWidth() / 399;
-		assets.load("GUI/font-black.ttf", BitmapFont.class, font);
-		font.fontParameters.color = new Color(0.3f,0.3f,0.3f,1);
-		assets.load("GUI/font-grey.ttf", BitmapFont.class, font);*/
+		font.fontParameters.size = (int)(120 * ((float)Gdx.graphics.getWidth()) / 399) / 2;
+		font.fontParameters.color = new Color(Color.WHITE);
+		assets.load("GUI/font-white.ttf", BitmapFont.class, font);*/
 
 
 		SmartFontGenerator fontGen = new SmartFontGenerator();
 		FileHandle exoFile = Gdx.files.internal("GUI/font.ttf");
-		BitmapFont font = fontGen.createFont(exoFile, "font",
+		font = fontGen.createFont(exoFile, "font",
 				(int)(120 * ((float)Gdx.graphics.getWidth()) / 399));
 		for(int i = 0; i < alphabet.length(); i++)
 			assets.load("letters/" + alphabet.charAt(i) + ".png", Texture.class);
@@ -69,7 +76,17 @@ public class Main extends Game {
 	public void render() {
 		super.render();
 
-		assets.update();
+
+		if (!assets.update()) {
+			spriteBatch.begin();
+			spriteBatch.draw(bg, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			spriteBatch.end();
+
+		}else if (!loaded){
+			setScreen(new com.adamhun11.wordpuzzle.Screens.Menu(this));
+			loaded = true;
+		}
+
 
 		if(!lettersLoaded)
 		{

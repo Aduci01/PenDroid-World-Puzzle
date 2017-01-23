@@ -69,9 +69,7 @@ public class Menu implements Screen {
     }
 
     private void initFonts(){
-        SmartFontGenerator fontGen = new SmartFontGenerator();
-        FileHandle exoFile = Gdx.files.internal("GUI/font.ttf");
-        lvlFont = fontGen.createFont(exoFile, "font", (int)(120 * wx));
+        lvlFont = game.font;
     }
 
     private void initStage(){

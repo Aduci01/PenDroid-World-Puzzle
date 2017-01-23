@@ -47,6 +47,7 @@ public class GameScreen implements Screen {
     public GameScreen(Main g, int lvlNum) {
         stage = new Stage();
         skin = new Skin();
+        game = g;
         pauseTable = new Table();
         pauseTable.setPosition(-5000f, -5000f);
         pauseTable.addAction(Actions.fadeOut(0));
@@ -67,9 +68,10 @@ public class GameScreen implements Screen {
         skin.add("default", defaultFont);
 
         BitmapFont bfont;
-        SmartFontGenerator fontGen = new SmartFontGenerator();
+        /*SmartFontGenerator fontGen = new SmartFontGenerator();
         FileHandle exoFile = Gdx.files.internal("GUI/font.ttf");
-        bfont = fontGen.createFont(exoFile, "font", (int)(120 * wx));
+        bfont = fontGen.createFont(exoFile, "font", (int)(120 * wx));*/
+        bfont = game.font;
         coinSkin.add("default", bfont);
 
 
@@ -107,8 +109,6 @@ public class GameScreen implements Screen {
         initButtons();
         stage.addActor(pauseTable);
 
-
-        game = g;
         gameLogic = new com.adamhun11.wordpuzzle.Game.GameLogic(game, stage, lvlNum);
         stage.addAction(Actions.sequence(Actions.fadeOut(0f), Actions.fadeIn(0.5f)));
     }
@@ -143,6 +143,7 @@ public class GameScreen implements Screen {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
                 pauseTable.addAction(Actions.sequence(Actions.fadeOut(0.3f),Actions.moveTo(-5000f, -5000f, 0.4f)));
                 gameLogic.solved = true;
+                coinLabel.setText(Integer.toString(Integer.valueOf(coinLabel.getLabel().getText().toString()) - gameLogic.addCoin));
                 gameLogic.endTransition = true;
                 paused = false;
             }
