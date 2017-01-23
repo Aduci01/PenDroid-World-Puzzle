@@ -1,5 +1,6 @@
 package com.adamhun11.wordpuzzle.Screens;
 
+import com.adamhun11.wordpuzzle.Game.Levels;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -51,10 +52,17 @@ public class GameScreen implements Screen {
         skin.add("default",bfont);
 
 
-        Image image = new Image(new Texture("GUI/bg/background.png"));
-        image.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        image.setPosition(0,0);
-       // stage.addActor(image);
+        /*if (Levels.levels.get(lvlNum - 1).letterTexture.equals("normal")) {
+            Image image = new Image(new Texture("GUI/bg/background.png"));
+            image.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            image.setPosition(0, 0);
+            stage.addActor(image);
+        }*/
+
+        Image coins = new Image(new Texture("GUI/coins.png"));
+        coins.setSize(coins.getWidth() * ((399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() / coins.getHeight()) * wx, (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx);
+        coins.setPosition(0, Gdx.graphics.getHeight() - (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx - coins.getHeight());
+        stage.addActor(coins);
         initButtons();
         stage.addActor(pauseTable);
 

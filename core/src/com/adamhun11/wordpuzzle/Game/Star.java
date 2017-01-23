@@ -19,21 +19,26 @@ public class Star {
     boolean endTransition = false;
     int r, c;
     float timer = 0;
+    float deltaSize;
+    int table;
+    float wx = (float) Gdx.graphics.getWidth() / 399f;
 
 
-    public Star(float x, float y, float size, float fade, int r, int c){
+    public Star(float x, float y, float size, float fade, int r, int c, int table){
         posX = x; posY = y;
         this.size = size;
         sprite = new Sprite(new Texture("star.png"));
         sprite.setSize(size, size);
         fadeFloat = fade;
         this.c = c; this.r = r;
+        this.table = table;
     }
 
     public void collect(Letter l){
         collected = true;
-        speedX = (-posX + (float) Gdx.graphics.getWidth() / 399f * 20);
-        speedY = (Gdx.graphics.getHeight() - size * 2 - posY);
+        speedX = (-posX) + 10 * wx;
+        speedY = Gdx.graphics.getHeight() - 2 * (399f / 10 * 4.5f) / table * wx - posY;
+        deltaSize = (size - (399f / 10 * 3.5f) / table * wx);
     }
 
     public void update(float dt){
@@ -44,11 +49,12 @@ public class Star {
             timer += dt;
                 posX += speedX * dt;
                 posY += speedY * dt;
+            size -= deltaSize * dt;
         }
         if (timer >= 1) {
-            posY = Gdx.graphics.getHeight() - size * 2; posX = (float) Gdx.graphics.getWidth() / 399f * 20;
+            posY = Gdx.graphics.getHeight() - 2 * (399f / 10 * 4.5f) / table * wx; posX = 10 * wx;
         }
-
+            sprite.setSize(size, size);
             sprite.setPosition(posX, posY - fadeFloat);
     }
 

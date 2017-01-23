@@ -59,6 +59,7 @@ public class Menu implements Screen {
         initFonts();
 
         Preferences prefs = Gdx.app.getPreferences("datas");
+        prefs.clear();
         unlockedLevel = prefs.getInteger("unlockedLevel", 1);
         initStage();
         stage.addAction(Actions.sequence(Actions.fadeOut(0), Actions.fadeIn(1f)));

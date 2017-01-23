@@ -129,7 +129,7 @@ public class GameLogic {
         size = tableX / row;
         offsetYUp = (666 - 150) * hx  - col * size;
 
-        fadeFloat = offsetYUp + row * size;
+        fadeFloat = offsetYUp + row * size - 50 * hx;
 
 
         for (int i = 0; i < col; i++){
@@ -154,7 +154,7 @@ public class GameLogic {
                     x = MathUtils.random(row - 1);
                     y = MathUtils.random(col - 1);
                 } while (!map[x][y].equals("."));
-                stars.add(new Star(y * size + offsetX + size / 10, (col - x) * size - size + offsetY, size / 10 * 9, fadeFloat, y + 1, x + 1));
+                stars.add(new Star(y * size + offsetX, (col - x) * size - size + offsetY, size, fadeFloat, y + 1, x + 1, row));
             }
         }
     }

@@ -8,9 +8,9 @@ import com.badlogic.gdx.utils.Array;
 
 public class Levels {
     int lvlNum;
-    String map;
-    String word;
-    String letterTexture;
+    public String map;
+    public String word;
+    public String letterTexture;
 
     public static Array<Levels> levels;
     public static void init(){
