@@ -1,8 +1,8 @@
 package com.adamhun11.wordpuzzle.Screens;
 
 import com.adamhun11.wordpuzzle.Facebook;
+import com.adamhun11.wordpuzzle.Main;
 import com.adamhun11.wordpuzzle.SmartFontGenerator;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -29,7 +30,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
  */
 
 public class Menu implements Screen {
-    Game game;
+    Main game;
     Stage stage;
     Skin skin;
     SpriteBatch spriteBatch;
@@ -49,7 +50,7 @@ public class Menu implements Screen {
     int unlockedLevel;
 
 
-    public Menu(Game g){
+    public Menu(Main g){
         game = g;
         facebook = new Facebook();
         facebook.init();
@@ -75,12 +76,12 @@ public class Menu implements Screen {
     }
 
     private void initStage(){
-        circle = new Sprite(new Texture("GUI/circle.png"));
+        circle = new Sprite(game.assets.get("GUI/circle.png", Texture.class));
 
         stage = new Stage();
         skin = new Skin();
-        skin.add("a", new Texture("GUI/transparent.png"));
-        skin.add("fb", new Texture("GUI/buttons/fb.png"));
+        skin.add("a", game.assets.get("GUI/transparent.png", Texture.class));
+        skin.add("fb", game.assets.get("GUI/buttons/fb.png", Texture.class));
 
         Image image = new Image(circle);
         image.setSize(200 * wx, 200 * wx);
@@ -111,6 +112,7 @@ public class Menu implements Screen {
         textButtonStyle.over = skin.newDrawable("fb", Color.BLUE);
         textButtonStyle.font = new BitmapFont();
         skin.add("default", textButtonStyle);
+
         final TextButton button = new TextButton("",textButtonStyle);
         button.setSize(wx * button.getWidth() / 4, hx * button.getHeight() / 4);
         button.addListener(new ChangeListener() {

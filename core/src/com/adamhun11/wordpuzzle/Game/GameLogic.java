@@ -2,6 +2,7 @@ package com.adamhun11.wordpuzzle.Game;
 
 import com.adamhun11.wordpuzzle.Game.Letter;
 import com.adamhun11.wordpuzzle.Game.Levels;
+import com.adamhun11.wordpuzzle.Main;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
@@ -20,7 +21,7 @@ import com.badlogic.gdx.utils.Array;
  */
 
 public class GameLogic {
-    Game game;
+    Main game;
     private String[][] map;
     String word;
     Array<Letter> letters;
@@ -92,8 +93,8 @@ public class GameLogic {
     public boolean solved, endTransition;
     float fadeFloat;
 
-    public GameLogic(Stage s, int lvlNum){
-
+    public GameLogic(Main g, Stage s, int lvlNum){
+        game = g;
         spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         stage = s;
@@ -136,7 +137,7 @@ public class GameLogic {
             for (int j = 0; j < row; j++){
                 map[i][j] = String.valueOf(a.charAt(i * col + j));
                 if (!map[i][j].equals(".") && !map[i][j].equals("X")){
-                    letters.add(new Letter(map[i][j].toUpperCase(), size, j * size + offsetX, (col - i) * size - size + offsetY, j+1, i+1, offsetX, offsetY, col, fadeFloat));
+                    letters.add(new Letter(game, map[i][j].toUpperCase(), size, j * size + offsetX, (col - i) * size - size + offsetY, j+1, i+1, offsetX, offsetY, col, fadeFloat));
                 }
             }
         }
@@ -163,7 +164,7 @@ public class GameLogic {
         solvedLetters = new Array<Letter>();
         float sizeX = (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx;
         for (int i = 0; i < Levels.levels.get(lvlNum - 1).word.length(); i++){
-            solvedLetters.add(new Letter(Character.toString(Levels.levels.get(lvlNum - 1).word.charAt(i)), sizeX, i * sizeX, Gdx.graphics.getHeight() - sizeX, 0,0,0,0,0,0));
+            solvedLetters.add(new Letter(game, Character.toString(Levels.levels.get(lvlNum - 1).word.charAt(i)), sizeX, i * sizeX, Gdx.graphics.getHeight() - sizeX, 0,0,0,0,0,0));
         }
     }
 
