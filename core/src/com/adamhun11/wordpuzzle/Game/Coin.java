@@ -53,6 +53,7 @@ public class Coin {
         }
         if (timer >= 0.5f) {
             posY = Gdx.graphics.getHeight() - 1.5f * (399f / 10 * 4.5f) / table * wx; posX = 20 * wx;
+            size = 0;
             if (timer < 2) {
                 increaseCoins = true;
                 timer = 2;

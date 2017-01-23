@@ -203,10 +203,6 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
         if (!paused) {
-            if (gameLogic.solved) {
-                prefs.putInteger("coins", prefs.getInteger("coin", 0) + gameLogic.addCoin);
-                prefs.flush();
-            }
             gameLogic.update(delta);
             if (gameLogic.increaseCoins()) coinLabel.getLabel().setText(
                     Integer.toString(Integer.valueOf(coinLabel.getLabel().getText().toString()) + 1));

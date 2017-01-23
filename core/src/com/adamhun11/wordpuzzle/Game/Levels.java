@@ -112,6 +112,23 @@ public class Levels {
                 "e..oXc...";
         levels.add(four);
 
+
+        Levels elephant = new Levels();
+        elephant.lvlNum = 4;
+        elephant.word = "elephant";
+        elephant.letterTexture = "normal";
+        elephant.map =
+                "Xl....XX" +
+                "XX....Xn" +
+                ".e....h." +
+                "..XXXX.." +
+                "..XXXX.." +
+                ".t....e." +
+                "pX....XX" +
+                "XX....aX";
+
+        levels.add(elephant);
+
         Levels five = new Levels();
         five.lvlNum = 5;
         five.word = "abcdefgh";

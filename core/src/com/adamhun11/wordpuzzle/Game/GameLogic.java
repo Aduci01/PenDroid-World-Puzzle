@@ -223,7 +223,7 @@ public class GameLogic {
                     endTransition = true;
                     if (prefs.getInteger("unlockedLevel", 0) < lvlNum + 1)
                     prefs.putInteger("unlockedLevel", lvlNum + 1);
-                    //prefs.putInteger("addCoin", addCoin);
+                    prefs.putInteger("coins", prefs.getInteger("coins", 0) + addCoin);
                     prefs.flush();
                     lvlNum++;
                 }
