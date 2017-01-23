@@ -1,9 +1,6 @@
 package com.adamhun11.wordpuzzle.Game;
 
-import com.adamhun11.wordpuzzle.Game.Letter;
-import com.adamhun11.wordpuzzle.Game.Levels;
 import com.adamhun11.wordpuzzle.Main;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
@@ -11,9 +8,9 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -26,7 +23,7 @@ public class GameLogic {
     String word;
     Array<Letter> letters;
     Array<Letter> solvedLetters;
-    Array<Star> stars;
+    Array<Coin> coins;
 
     ShapeRenderer shapeRenderer;
     SpriteBatch spriteBatch;
@@ -45,6 +42,8 @@ public class GameLogic {
     int col, row;
 
     int lvlNum;
+
+    public int addCoin;
 
     boolean dragged = false;
     int touchCol, touchRow;
@@ -89,6 +88,7 @@ public class GameLogic {
                     "}";
 
     ShaderProgram shader;
+    Preferences prefs;
 
     public boolean solved, endTransition;
     float fadeFloat;
@@ -99,15 +99,17 @@ public class GameLogic {
         shapeRenderer = new ShapeRenderer();
         stage = s;
         this.lvlNum = lvlNum;
-
         init(lvlNum);
 
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
         spriteBatch.setProjectionMatrix(stage.getCamera().combined);
+
+        prefs = Gdx.app.getPreferences("datas");
     }
 
     public void init(int lvlNum){
         solved = false; endTransition = false;
+        addCoin = 0;
         if (Levels.levels.get(lvlNum - 1).letterTexture.equals("white")){
             ShaderProgram.pedantic = false;
             shader = new ShaderProgram(VERT, FRAG);
@@ -143,7 +145,7 @@ public class GameLogic {
         }
         solvedLetters();
 
-        stars = new Array<Star>();
+        coins = new Array<Coin>();
         Preferences prefs = Gdx.app.getPreferences("datas");
         System.out.println(prefs.getInteger("unlockedLevel", 1));
         System.out.println(lvlNum + 1);
@@ -155,7 +157,7 @@ public class GameLogic {
                     x = MathUtils.random(row - 1);
                     y = MathUtils.random(col - 1);
                 } while (!map[x][y].equals("."));
-                stars.add(new Star(y * size + offsetX, (col - x) * size - size + offsetY, size, fadeFloat, y + 1, x + 1, row));
+                coins.add(new Coin(y * size + offsetX, (col - x) * size - size + offsetY, size, fadeFloat, y + 1, x + 1, row));
             }
         }
     }
@@ -208,7 +210,7 @@ public class GameLogic {
                 if (dc > touchCol && dr == touchRow) {
                     moveDown(i);
                 }
-                for (Star star : stars){
+                for (Coin star : coins){
                     if (star.c == letters.get(i).c &&
                             star.r == letters.get(i).r)
                         star.collect(letters.get(i));
@@ -219,9 +221,9 @@ public class GameLogic {
                     System.out.println("Solved");
                     solved = true;
                     endTransition = true;
-                    Preferences prefs = Gdx.app.getPreferences("datas");
                     if (prefs.getInteger("unlockedLevel", 0) < lvlNum + 1)
                     prefs.putInteger("unlockedLevel", lvlNum + 1);
+                    //prefs.putInteger("addCoin", addCoin);
                     prefs.flush();
                     lvlNum++;
                 }
@@ -238,13 +240,13 @@ public class GameLogic {
             letters.get(i).update(dt);
             if (letters.get(i).speedX != 0 || letters.get(i).speedY != 0) transition = true;
         }
-        for (Star star : stars) star.update(dt);
+        for (Coin star : coins) star.update(dt);
         if (!transition) {
             //start transition
             if (fadeFloat > 0 && !solved) fadeFloat -= size * 10 * dt;
             if (endTransition){
                 for (Letter l : letters) l.endTransition = true;
-                for (Star star : stars) star.endTransition = true;
+                for (Coin star : coins) star.endTransition = true;
                 fadeFloat += size * 10 * dt;
                 if (offsetY - fadeFloat + col * size < 0){
                     init(lvlNum);
@@ -253,6 +255,16 @@ public class GameLogic {
                 inputHandler();
             }
         }
+    }
+
+    public boolean increaseCoins(){
+        for (Coin c : coins){
+            if (c.increaseCoins) {
+                addCoin++;
+                return true;
+            }
+        }
+        return false;
     }
 
     public void render(float delta) {
@@ -314,7 +326,7 @@ public class GameLogic {
             letters.get(i).render(spriteBatch);
             solvedLetters.get(i).render(spriteBatch);
         }
-        for (Star s : stars) s.render(spriteBatch);
+        for (Coin s : coins) s.render(spriteBatch);
 
         spriteBatch.end();
     }

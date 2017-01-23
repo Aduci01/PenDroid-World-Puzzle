@@ -1,9 +1,14 @@
 package com.adamhun11.wordpuzzle.Screens;
 
 import com.adamhun11.wordpuzzle.Game.Levels;
+import com.adamhun11.wordpuzzle.Main;
+import com.adamhun11.wordpuzzle.SmartFontGenerator;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -11,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -21,20 +27,24 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
  */
 
 public class GameScreen implements Screen {
-    Game game;
+    Main game;
     com.adamhun11.wordpuzzle.Game.GameLogic gameLogic;
 
     Stage stage;
     Table pauseTable;
     Skin skin;
+    Skin coinSkin;
 
     float wx = (float) Gdx.graphics.getWidth() / 399f;
     float hx = (float) Gdx.graphics.getHeight() / 666f;
 
 
     boolean paused = false;
+    Preferences prefs;
 
-    public GameScreen(Game g, int lvlNum) {
+    TextButton coinLabel;
+
+    public GameScreen(Main g, int lvlNum) {
         stage = new Stage();
         skin = new Skin();
         pauseTable = new Table();
@@ -48,8 +58,20 @@ public class GameScreen implements Screen {
         skin.add("resume", new Texture("GUI/buttons/resume.png"));
         skin.add("restart", new Texture("GUI/buttons/restart.png"));
         skin.add("bg", new Texture("GUI/menus/pause_menu.png"));
-        BitmapFont bfont = new BitmapFont();
-        skin.add("default",bfont);
+        skin.add("transparent", new Texture("GUI/transparent.png"));
+
+        coinSkin = new Skin();
+        coinSkin.add("coinbg", new Texture("GUI/coins.png"));
+
+        BitmapFont defaultFont = new BitmapFont();
+        skin.add("default", defaultFont);
+
+        BitmapFont bfont;
+        SmartFontGenerator fontGen = new SmartFontGenerator();
+        FileHandle exoFile = Gdx.files.internal("GUI/font.ttf");
+        bfont = fontGen.createFont(exoFile, "font", (int)(120 * wx));
+        coinSkin.add("default", bfont);
+
 
 
         /*if (Levels.levels.get(lvlNum - 1).letterTexture.equals("normal")) {
@@ -59,16 +81,35 @@ public class GameScreen implements Screen {
             stage.addActor(image);
         }*/
 
+        Table coinTable = new Table();
         Image coins = new Image(new Texture("GUI/coins.png"));
+        coinTable.setSize(coins.getWidth() * ((399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() / coins.getHeight()) * wx, (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx);
         coins.setSize(coins.getWidth() * ((399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() / coins.getHeight()) * wx, (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx);
         coins.setPosition(0, Gdx.graphics.getHeight() - (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx - coins.getHeight());
-        stage.addActor(coins);
+        coinTable.setPosition(0, Gdx.graphics.getHeight() - (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx - coins.getHeight());
+
+        prefs = Gdx.app.getPreferences("datas");
+        Label.LabelStyle labelStyle = new Label.LabelStyle();
+        labelStyle.font = coinSkin.getFont("default");
+        coinLabel = createCoinButton("transparent");
+        coinLabel.getLabel().setText(Integer.toString(prefs.getInteger("coins", 0)));
+        coinLabel.getLabel().setFontScale(0.28f - 0.02f * Integer.toString(prefs.getInteger("coins", 0)).length());
+        coinLabel.setName("coinLabel");
+
+        coinTable.add(coinLabel).padLeft(25 * wx);
+
+        coinTable.setSkin(coinSkin);
+        coinTable.setBackground("coinbg");
+
+        stage.addActor(coinTable);
+
+
         initButtons();
         stage.addActor(pauseTable);
 
 
         game = g;
-        gameLogic = new com.adamhun11.wordpuzzle.Game.GameLogic(stage, lvlNum);
+        gameLogic = new com.adamhun11.wordpuzzle.Game.GameLogic(game, stage, lvlNum);
         stage.addAction(Actions.sequence(Actions.fadeOut(0f), Actions.fadeIn(0.5f)));
     }
 
@@ -138,6 +179,20 @@ public class GameScreen implements Screen {
         return button;
     }
 
+    private TextButton createCoinButton(String name){
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.newDrawable(name, Color.GREEN);
+        textButtonStyle.down = skin.newDrawable(name, Color.DARK_GRAY);
+        textButtonStyle.checked = skin.newDrawable(name, Color.GREEN);
+        textButtonStyle.over = skin.newDrawable(name, Color.GREEN);
+        textButtonStyle.font = coinSkin.getFont("default");
+
+        coinSkin.add("default", textButtonStyle);
+
+        final TextButton button = new TextButton("",textButtonStyle);
+        return button;
+    }
+
     @Override
     public void show() {
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
@@ -146,8 +201,16 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        if (!paused)
-         gameLogic.update(delta);
+        if (!paused) {
+            if (gameLogic.solved) {
+                prefs.putInteger("coins", prefs.getInteger("coin", 0) + gameLogic.addCoin);
+                prefs.flush();
+            }
+            gameLogic.update(delta);
+            if (gameLogic.increaseCoins()) coinLabel.getLabel().setText(
+                    Integer.toString(Integer.valueOf(coinLabel.getLabel().getText().toString()) + 1));
+        }
+
 
         gameLogic.render(delta);
         stage.draw();

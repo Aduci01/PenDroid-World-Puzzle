@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGeneratorLoader;
 import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader;
-import com.badlogic.gdx.graphics.g2d.freetype.FreetypeFontLoader.FreeTypeFontLoaderParameter;
 
 public class Main extends Game {
 	public AssetManager assets;
@@ -39,24 +38,23 @@ public class Main extends Game {
 		assets.load("GUI/buttons/fb.png", Texture.class);
 		assets.load("GUI/bg/background.png", Texture.class);
 
-		/*
-		FileHandleResolver resolver = assets.getFileHandleResolver();
+
+		/*FileHandleResolver resolver = assets.getFileHandleResolver();
 		assets.setLoader(FreeTypeFontGenerator.class, new FreeTypeFontGeneratorLoader(resolver));
 		assets.setLoader(BitmapFont.class, ".ttf", new FreetypeFontLoader(resolver));
 
-		FreeTypeFontLoaderParameter font = new FreeTypeFontLoaderParameter();
+		FreetypeFontLoader.FreeTypeFontLoaderParameter font = new FreetypeFontLoader.FreeTypeFontLoaderParameter();
 		font.fontFileName = "GUI/font.ttf";
 		font.fontParameters.size = Gdx.graphics.getWidth() / 399;
 		assets.load("GUI/font-black.ttf", BitmapFont.class, font);
 		font.fontParameters.color = new Color(0.3f,0.3f,0.3f,1);
-		assets.load("GUI/font-grey.ttf", BitmapFont.class, font);
-		*/
+		assets.load("GUI/font-grey.ttf", BitmapFont.class, font);*/
+
 
 		SmartFontGenerator fontGen = new SmartFontGenerator();
 		FileHandle exoFile = Gdx.files.internal("GUI/font.ttf");
 		BitmapFont font = fontGen.createFont(exoFile, "font",
 				(int)(120 * ((float)Gdx.graphics.getWidth()) / 399));
-
 		for(int i = 0; i < alphabet.length(); i++)
 			assets.load("letters/" + alphabet.charAt(i) + ".png", Texture.class);
 

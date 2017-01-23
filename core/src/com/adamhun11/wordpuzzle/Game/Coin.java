@@ -9,12 +9,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
  * Created by Adam on 2017. 01. 22..
  */
 
-public class Star {
+public class Coin {
     float posX, posY;
     float speedX, speedY;
     float size;
     Sprite sprite;
-    boolean collected = false;
+    boolean collected = false, increaseCoins = false;
     float fadeFloat;
     boolean endTransition = false;
     int r, c;
@@ -24,7 +24,7 @@ public class Star {
     float wx = (float) Gdx.graphics.getWidth() / 399f;
 
 
-    public Star(float x, float y, float size, float fade, int r, int c, int table){
+    public Coin(float x, float y, float size, float fade, int r, int c, int table){
         posX = x; posY = y;
         this.size = size;
         sprite = new Sprite(new Texture("star.png"));
@@ -36,23 +36,27 @@ public class Star {
 
     public void collect(Letter l){
         collected = true;
-        speedX = (-posX) + 10 * wx;
-        speedY = Gdx.graphics.getHeight() - 2 * (399f / 10 * 4.5f) / table * wx - posY;
-        deltaSize = (size - (399f / 10 * 3.5f) / table * wx);
+        speedX = (-posX) + 20 * wx;
+        speedY = Gdx.graphics.getHeight() - 1.5f * (399f / 10 * 4.5f) / table * wx - posY;
+        deltaSize = (size - (399f / 10 * 3.5f) / table * wx) * 2;
     }
 
     public void update(float dt){
         if (fadeFloat > 0 && !endTransition) fadeFloat -= dt * size * 10;
         if (endTransition && timer == 0) fadeFloat += dt * size * 10;
 
-        if (collected && timer <= 1f){
+        if (collected && timer < 0.5f){
             timer += dt;
-                posX += speedX * dt;
-                posY += speedY * dt;
-            size -= deltaSize * dt;
+                posX += speedX * dt * 2;
+                posY += speedY * dt * 2;
+            size -= deltaSize * dt * 2;
         }
-        if (timer >= 1) {
-            posY = Gdx.graphics.getHeight() - 2 * (399f / 10 * 4.5f) / table * wx; posX = 10 * wx;
+        if (timer >= 0.5f) {
+            posY = Gdx.graphics.getHeight() - 1.5f * (399f / 10 * 4.5f) / table * wx; posX = 20 * wx;
+            if (timer < 2) {
+                increaseCoins = true;
+                timer = 2;
+            } else increaseCoins = false;
         }
             sprite.setSize(size, size);
             sprite.setPosition(posX, posY - fadeFloat);
