@@ -90,7 +90,7 @@ public class GameLogic {
     ShaderProgram shader;
     Preferences prefs;
 
-    public boolean solved, endTransition;
+    public boolean solved, endTransition, transition;
     float fadeFloat;
 
     public GameLogic(Main g, Stage s, int lvlNum){
@@ -110,6 +110,12 @@ public class GameLogic {
     public void init(int lvlNum){
         solved = false; endTransition = false;
         addCoin = 0;
+
+        //Clearing the shader and background
+        spriteBatch.setShader(null);
+        bgColor = new Color(0.3f, 0.2f, 0.2f, 1f);
+        mapColor = Color.CORAL;
+
         if (Levels.levels.get(lvlNum - 1).letterTexture.equals("white")){
             ShaderProgram.pedantic = false;
             shader = new ShaderProgram(VERT, FRAG);
@@ -235,7 +241,7 @@ public class GameLogic {
     }
 
     public void update(float dt){
-        boolean transition = false;
+        transition = false;
         for (int i = 0; i < letters.size; i++){
             letters.get(i).update(dt);
             if (letters.get(i).speedX != 0 || letters.get(i).speedY != 0) transition = true;
@@ -487,8 +493,7 @@ public class GameLogic {
         return solve(nextX, nextY, direction, letterIndex + 1);
     }
 
-    public int getLvlNum(){
-        return lvlNum;
+    public void increaseLevelNum(int n){lvlNum += n;
     }
 
 }

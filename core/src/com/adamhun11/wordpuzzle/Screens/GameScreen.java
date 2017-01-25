@@ -31,7 +31,7 @@ public class GameScreen implements Screen {
     com.adamhun11.wordpuzzle.Game.GameLogic gameLogic;
 
     Stage stage;
-    Table pauseTable;
+    Table pauseTable, skipLevelTable;
     Skin skin;
     Skin coinSkin;
 
@@ -53,6 +53,10 @@ public class GameScreen implements Screen {
         pauseTable.addAction(Actions.fadeOut(0));
         pauseTable.setSize(Gdx.graphics.getWidth() / 1.5f, Gdx.graphics.getHeight() / 2);
 
+        skipLevelTable = new Table();
+        skipLevelTable.setSize(Gdx.graphics.getWidth() / 4f, 178 / 5 * hx);
+        skipLevelTable.setPosition(Gdx.graphics.getWidth() - 178 / 4 * wx - skipLevelTable.getWidth() - 10 * wx, Gdx.graphics.getHeight() - skipLevelTable.getHeight() - 5 * hx);
+
 
         skin.add("pause", new Texture("GUI/buttons/pause.png"));
         skin.add("exit", new Texture("GUI/buttons/exit.png"));
@@ -60,6 +64,8 @@ public class GameScreen implements Screen {
         skin.add("restart", new Texture("GUI/buttons/restart.png"));
         skin.add("bg", new Texture("GUI/menus/pause_menu.png"));
         skin.add("transparent", new Texture("GUI/transparent.png"));
+        skin.add("tablebg", new Texture("GUI/menus/table.png"));
+        skin.add("skip", new Texture("GUI/buttons/skip.png"));
 
         coinSkin = new Skin();
         coinSkin.add("coinbg", new Texture("GUI/coins.png"));
@@ -108,6 +114,7 @@ public class GameScreen implements Screen {
 
         initButtons();
         stage.addActor(pauseTable);
+        stage.addActor(skipLevelTable);
 
         gameLogic = new com.adamhun11.wordpuzzle.Game.GameLogic(game, stage, lvlNum);
         stage.addAction(Actions.sequence(Actions.fadeOut(0f), Actions.fadeIn(0.5f)));
@@ -158,10 +165,36 @@ public class GameScreen implements Screen {
             }
         });
         pauseTable.add(exit).width(Gdx.graphics.getWidth() / 3f).height( Gdx.graphics.getWidth() / 4f / resume.getWidth() * resume.getHeight()).padBottom(20);
-
-
         pauseTable.setSkin(skin);
         pauseTable.setBackground("bg");
+
+        //SKIP LEVEL
+        skipLevelTable.setSkin(skin);
+        skipLevelTable.setBackground("tablebg");
+
+        TextButton skipButton = createTextButton("skip");
+        skipButton.addListener(new ChangeListener() {
+            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                if (Integer.valueOf(coinLabel.getLabel().getText().toString()) >= 15){
+                    if (!gameLogic.endTransition && !gameLogic.transition){
+                        prefs.putInteger("coins", prefs.getInteger("coins", 0) - 15);
+                    coinLabel.getLabel().setText(Integer.toString(Integer.valueOf(coinLabel.getLabel().getText().toString()) - 15));
+                    gameLogic.solved = true;
+                    gameLogic.endTransition = true;
+                    gameLogic.increaseLevelNum(1);
+                        prefs.flush();
+                    }
+                }
+            }
+        });
+        skipLevelTable.add(skipButton).width(skipButton.getWidth() * wx / 5).height(skipButton.getHeight() * hx / 5);
+
+        TextButton costLabel = createCoinButton("transparent");
+        costLabel.getLabel().setText("15");
+        costLabel.getLabel().setFontScale(0.28f);
+        costLabel.setSize(costLabel.getWidth() * wx / 4, costLabel.getHeight() * hx / 4);
+        skipLevelTable.add(costLabel);
+
 
     }
     private TextButton createTextButton(String name){
