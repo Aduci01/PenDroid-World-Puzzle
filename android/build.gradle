@@ -16,6 +16,7 @@ android {
     }
     defaultConfig {
         applicationId "com.adamhun11.wordpuzzle"
+        multiDexEnabled true
         minSdkVersion 15
         targetSdkVersion 24
     }

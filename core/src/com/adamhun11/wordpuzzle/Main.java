@@ -26,6 +26,14 @@ public class Main extends Game {
 	private SpriteBatch spriteBatch;
 	private boolean loaded = false;
 
+	public static PlayServices playServices;
+
+	public Main(PlayServices playServices)
+	{
+		this.playServices = playServices;
+	}
+	public Main(){}
+
 	@Override
 	public void create ()
 	{

@@ -66,6 +66,7 @@ public class Menu implements Screen {
         spriteBatch.setProjectionMatrix(stage.getCamera().combined);
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
 
+        game.playServices.signIn();
     }
 
     private void initFonts(){
