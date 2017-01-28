@@ -99,13 +99,13 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices 
 
 	@Override
 	public void rateGame() {
-		String str = "Your PlayStore Link";
+		String str = "https://play.google.com/store/apps/details?id=com.adamhun11.wordpuzzle";
 		startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(str)));
 	}
 
 	@Override
-	public void unlockAchievement() {
-
+	public void unlockAchievement(String s) {
+		Games.Achievements.unlock(gameHelper.getApiClient(), s);
 	}
 
 	@Override
@@ -115,15 +115,22 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices 
 
 	@Override
 	public void showAchievement() {
-
+		if (isSignedIn() == true)
+		{
+			startActivityForResult(Games.Achievements.getAchievementsIntent(gameHelper.getApiClient()), requestCode);
+		}
+		else
+		{
+			signIn();
+		}
 	}
 
 	@Override
 	public void showScore() {
 		if (isSignedIn() == true)
 		{
-			/*startActivityForResult(Games.Leaderboards.getLeaderboardIntent(gameHelper.getApiClient(),
-					getString(R.string.leaderboard_highest)), requestCode);*/
+			startActivityForResult(Games.Leaderboards.getLeaderboardIntent(gameHelper.getApiClient(),
+					getString(R.string.m_leaderboard)), requestCode);
 		}
 		else
 		{

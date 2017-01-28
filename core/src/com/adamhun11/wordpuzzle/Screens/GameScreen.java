@@ -187,7 +187,7 @@ public class GameScreen implements Screen {
                 }
             }
         });
-        skipLevelTable.add(skipButton).width(skipButton.getWidth() * wx / 5).height(skipButton.getHeight() * hx / 5).padLeft(10 * wx);
+        skipLevelTable.add(skipButton).width(skipButton.getWidth() * wx / 5).height(skipButton.getHeight() * hx / 6).padLeft(10 * wx);
 
         TextButton costLabel = createCoinButton("transparent");
         costLabel.getLabel().setText("15");

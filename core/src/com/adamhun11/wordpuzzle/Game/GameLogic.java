@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -27,6 +28,7 @@ public class GameLogic {
 
     ShapeRenderer shapeRenderer;
     SpriteBatch spriteBatch;
+    Texture background;
 
     Stage stage;
     float wx = (float) Gdx.graphics.getWidth() / 399f;
@@ -105,6 +107,7 @@ public class GameLogic {
         spriteBatch.setProjectionMatrix(stage.getCamera().combined);
 
         prefs = Gdx.app.getPreferences("datas");
+        background = new Texture("GUI/bg/background.png");
     }
 
     public void init(int lvlNum){
@@ -231,6 +234,7 @@ public class GameLogic {
                     prefs.putInteger("unlockedLevel", lvlNum + 1);
                     prefs.putInteger("coins", prefs.getInteger("coins", 0) + addCoin);
                     prefs.flush();
+                    if (lvlNum == 5 && game.playServices.isSignedIn()) game.playServices.unlockAchievement("CgkIm8ul_80PEAIQAQ");
                     lvlNum++;
                 }
 
@@ -276,6 +280,10 @@ public class GameLogic {
     public void render(float delta) {
         Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        spriteBatch.begin();
+        spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        spriteBatch.end();
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(mapColor);
@@ -333,7 +341,6 @@ public class GameLogic {
             solvedLetters.get(i).render(spriteBatch);
         }
         for (Coin s : coins) s.render(spriteBatch);
-
         spriteBatch.end();
     }
 

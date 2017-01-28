@@ -53,6 +53,7 @@ public class Main extends Game {
 		assets.load("GUI/transparent.png", Texture.class);
 		assets.load("GUI/buttons/fb.png", Texture.class);
 		assets.load("GUI/bg/background.png", Texture.class);
+		assets.load("GUI/buttons/achievements.png", Texture.class);
 
 
 		/*FileHandleResolver resolver = assets.getFileHandleResolver();
