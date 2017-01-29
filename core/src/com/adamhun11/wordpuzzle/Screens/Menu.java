@@ -79,6 +79,7 @@ public class Menu implements Screen {
         skin.add("a", game.assets.get("GUI/transparent.png", Texture.class));
         skin.add("fb", game.assets.get("GUI/buttons/fb.png", Texture.class));
         skin.add("achievements", game.assets.get("GUI/buttons/achievements.png"), Texture.class);
+        skin.add("leaderboard", new Texture("GUI/buttons/leaderboard.png"));
 
         Image image = new Image(circle);
         image.setSize(200 * wx, 200 * wx);
@@ -86,6 +87,7 @@ public class Menu implements Screen {
         stage.addActor(image);
 
         Image image2 = new Image(new Texture("GUI/bg/lettersbg.png"));
+        image2.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         stage.addActor(image2);
 
         BitmapFont bfont = new BitmapFont();
@@ -116,7 +118,7 @@ public class Menu implements Screen {
         skin.add("default", textButtonStyle);
 
         final TextButton button = new TextButton("",textButtonStyle);
-        button.setSize(wx * button.getWidth() / 4, hx * button.getHeight() / 4);
+        button.setSize(wx * 55, hx * 55);
         button.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
                 facebook.logIn();
@@ -135,8 +137,8 @@ public class Menu implements Screen {
         skin.add("default", textButtonStyle);
 
         final TextButton achievementButton = new TextButton("",textButtonStyle);
-        achievementButton.setSize(wx * achievementButton.getWidth() / 4, hx * achievementButton.getHeight() / 4);
-        achievementButton.setPosition(wx * (achievementButton.getWidth() * 1f + 2), 0);
+        achievementButton.setSize(wx * 55, hx * 55);
+        achievementButton.setPosition((achievementButton.getWidth() * 1f + 2), 0);
         achievementButton.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
                 game.playServices.showAchievement();
@@ -146,16 +148,16 @@ public class Menu implements Screen {
 
         //LEADERBOARD button
         textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = skin.newDrawable("achievements", Color.GREEN);
-        textButtonStyle.down = skin.newDrawable("achievements", Color.DARK_GRAY);
-        textButtonStyle.checked = skin.newDrawable("achievements", Color.GREEN);
-        textButtonStyle.over = skin.newDrawable("achievements", Color.LIME);
+        textButtonStyle.up = skin.newDrawable("leaderboard", Color.GREEN);
+        textButtonStyle.down = skin.newDrawable("leaderboard", Color.DARK_GRAY);
+        textButtonStyle.checked = skin.newDrawable("leaderboard", Color.GREEN);
+        textButtonStyle.over = skin.newDrawable("leaderboard", Color.LIME);
         textButtonStyle.font = new BitmapFont();
         skin.add("default", textButtonStyle);
 
         final TextButton leaderboardButton = new TextButton("",textButtonStyle);
-        leaderboardButton.setSize(wx * achievementButton.getWidth() / 4, hx * achievementButton.getHeight() / 4);
-        leaderboardButton.setPosition(wx * (achievementButton.getWidth() * 2f + 2), 0);
+        leaderboardButton.setSize(wx * 55, hx * 55);
+        leaderboardButton.setPosition((achievementButton.getWidth() * 2f + 4), 0);
         leaderboardButton.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
                 game.playServices.showScore();
@@ -183,6 +185,8 @@ public class Menu implements Screen {
             button.addListener(new ChangeListener() {
                 public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                     game.setScreen(new GameScreen(game, lvl));
+                    /*if (game.playServices.isSignedIn())
+                    game.playServices.quickGame();*/
                 }
             });
         } else button.getLabel().setColor(Color.DARK_GRAY);
@@ -200,7 +204,7 @@ public class Menu implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(Color.CORAL.r, Color.CORAL.g, Color.CORAL.b, 1);
+        Gdx.gl.glClearColor(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         stage.act();
 

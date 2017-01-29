@@ -44,12 +44,36 @@ public class Levels {
         miles.word = "miles";
         miles.letterTexture = "normal";
         miles.map =
-                "m.lXX" +
-                        "...XX" +
-                        "....e" +
-                        "..XX." +
-                        "i.sXX";
+                "l.X.m" +
+                        "....." +
+                        "sX.Xi" +
+                        "XXeXX"+
+        "XXXXX";
         levels.add(miles);
+
+
+        Levels road = new Levels();
+        road.word = "road";
+        road.letterTexture = "normal";
+        road.map =
+                "r.dX" +
+                        "...o" +
+                        ".aXX"+
+        "XXXX";
+        levels.add(road);
+
+
+        Levels banana = new Levels();
+        banana.word = "banana";
+        banana.letterTexture = "normal";
+        banana.map =
+                "n.XXnb" +
+                        "......" +
+                        "..XXXX" +
+                        "..XXXX" +
+                        "......" +
+                        "a.XXaa";
+        levels.add(banana);
 
 
         Levels two = new Levels();
@@ -64,6 +88,19 @@ public class Levels {
                 "c....n" +
                 "X....X";
         levels.add(two);
+
+
+        Levels plane = new Levels();
+        plane.lvlNum = 2;
+        plane.word = "plane";
+        plane.letterTexture = "normal";
+        plane.map =
+                "n...a" +
+                        ".X.X." +
+                        "e.l.p" +
+                        "XX.XX" +
+                        "..X..";
+        levels.add(plane);
 
 
         Levels forever = new Levels();

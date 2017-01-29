@@ -9,8 +9,13 @@ public interface PlayServices {
     public void signOut();
     public void rateGame();
     public void unlockAchievement(String s);
+    public void quickGame();
     public void submitScore(int highScore);
     public void showAchievement();
     public void showScore();
     public boolean isSignedIn();
+    public void setGame(Main game);
+    public void sendResult(int steps,float time);
+    public void leaveRoom();
+    public void sendLevelNum(int n);
 }

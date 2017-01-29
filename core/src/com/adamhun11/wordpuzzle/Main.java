@@ -1,5 +1,6 @@
 package com.adamhun11.wordpuzzle;
 
+import com.adamhun11.wordpuzzle.Screens.GameScreen;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
@@ -25,12 +26,16 @@ public class Main extends Game {
 	private Texture bg;
 	private SpriteBatch spriteBatch;
 	private boolean loaded = false;
+	public int opponent_steps = 0;
+	public float opponent_time = 0;
+	public int levelNum;
 
 	public static PlayServices playServices;
 
 	public Main(PlayServices playServices)
 	{
 		this.playServices = playServices;
+		playServices.setGame(this);
 	}
 	public Main(){}
 
@@ -41,7 +46,6 @@ public class Main extends Game {
 		bg = new Texture("GUI/bg/background.png");
 		spriteBatch = new SpriteBatch();
 		loadAssets();
-		//assets.finishLoading(); //TODO load asynchronously
 
 	}
 
@@ -73,7 +77,6 @@ public class Main extends Game {
 				(int)(120 * ((float)Gdx.graphics.getWidth()) / 399));
 		for(int i = 0; i < alphabet.length(); i++)
 			assets.load("letters/" + alphabet.charAt(i) + ".png", Texture.class);
-
 		assets.load("GUI/buttons/pause.png", Texture.class);
 		assets.load("GUI/buttons/exit.png", Texture.class);
 		assets.load("GUI/buttons/resume.png", Texture.class);
@@ -107,4 +110,15 @@ public class Main extends Game {
 				}
 		}
 	}
+
+	//Multiplayer function
+	public void updateSteps(int s, float t) {
+		opponent_steps = s;
+		opponent_time = t;
+	}
+
+	public void setLevelNum(int n){
+		this.levelNum = n;
+	}
+
 }

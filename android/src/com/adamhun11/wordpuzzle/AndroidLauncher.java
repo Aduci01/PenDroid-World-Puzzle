@@ -3,6 +3,7 @@ package com.adamhun11.wordpuzzle;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
@@ -12,7 +13,7 @@ import com.google.android.gms.games.Games;
 import com.google.example.games.basegameutils.GameHelper;
 
 public class AndroidLauncher extends AndroidApplication implements PlayServices {
-	private GameHelper gameHelper;
+	private MultiPlayerServices multiPlayerServices;
 	private final static int requestCode = 1;
 
 
@@ -20,8 +21,8 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices 
 	protected void onCreate (Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		gameHelper = new GameHelper(this, GameHelper.CLIENT_GAMES);
-		gameHelper.enableDebugLog(false);
+		multiPlayerServices = new MultiPlayerServices(this, GameHelper.CLIENT_GAMES);
+		multiPlayerServices.enableDebugLog(false);
 
 		GameHelper.GameHelperListener gameHelperListener = new GameHelper.GameHelperListener()
 		{
@@ -32,7 +33,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices 
 			public void onSignInSucceeded(){ }
 		};
 
-		gameHelper.setup(gameHelperListener);
+		multiPlayerServices.setup(gameHelperListener);
 
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		initialize(new Main(this), config);
@@ -42,21 +43,21 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices 
 	protected void onStart()
 	{
 		super.onStart();
-		gameHelper.onStart(this);
+		multiPlayerServices.onStart(this);
 	}
 
 	@Override
 	protected void onStop()
 	{
 		super.onStop();
-		gameHelper.onStop();
+		multiPlayerServices.onStop();
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		super.onActivityResult(requestCode, resultCode, data);
-		gameHelper.onActivityResult(requestCode, resultCode, data);
+		multiPlayerServices.onActivityResult(requestCode, resultCode, data);
 	}
 
 	@Override
@@ -68,7 +69,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices 
 				@Override
 				public void run()
 				{
-					gameHelper.beginUserInitiatedSignIn();
+					multiPlayerServices.beginUserInitiatedSignIn();
 				}
 			});
 		}
@@ -87,7 +88,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices 
 				@Override
 				public void run()
 				{
-					gameHelper.signOut();
+					multiPlayerServices.signOut();
 				}
 			});
 		}
@@ -105,7 +106,21 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices 
 
 	@Override
 	public void unlockAchievement(String s) {
-		Games.Achievements.unlock(gameHelper.getApiClient(), s);
+		Games.Achievements.unlock(multiPlayerServices.getApiClient(), s);
+	}
+
+	@Override
+	public void quickGame() {
+		try{
+			runOnUiThread(new Runnable(){
+				public void run(){
+					multiPlayerServices.quickGame();
+				}
+			});
+		}
+		catch (Exception e){
+			Gdx.app.log("CIRUS", "Google Services Logout Failed " + e.getMessage());
+		}
 	}
 
 	@Override
@@ -117,7 +132,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices 
 	public void showAchievement() {
 		if (isSignedIn() == true)
 		{
-			startActivityForResult(Games.Achievements.getAchievementsIntent(gameHelper.getApiClient()), requestCode);
+			startActivityForResult(Games.Achievements.getAchievementsIntent(multiPlayerServices.getApiClient()), requestCode);
 		}
 		else
 		{
@@ -129,7 +144,7 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices 
 	public void showScore() {
 		if (isSignedIn() == true)
 		{
-			startActivityForResult(Games.Leaderboards.getLeaderboardIntent(gameHelper.getApiClient(),
+			startActivityForResult(Games.Leaderboards.getLeaderboardIntent(multiPlayerServices.getApiClient(),
 					getString(R.string.m_leaderboard)), requestCode);
 		}
 		else
@@ -140,7 +155,26 @@ public class AndroidLauncher extends AndroidApplication implements PlayServices 
 
 	@Override
 	public boolean isSignedIn() {
-		return gameHelper.isSignedIn();
+		return multiPlayerServices.isSignedIn();
 
+	}
+
+	@Override
+	public void setGame(Main game) {
+		multiPlayerServices.setGame(game);
+	}
+
+	public void sendResult(int steps, float time) {
+		multiPlayerServices.sendResult(steps, time);
+	}
+
+	@Override
+	public void leaveRoom() {
+		multiPlayerServices.leaveRoom();
+	}
+
+	@Override
+	public void sendLevelNum(int n) {
+		multiPlayerServices.sendLevelNum(n);
 	}
 }
