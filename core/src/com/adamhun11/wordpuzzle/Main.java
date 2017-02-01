@@ -28,7 +28,7 @@ public class Main extends Game {
 	private boolean loaded = false;
 	public int opponent_steps = 0;
 	public float opponent_time = 0;
-	public int levelNum;
+	public int levelNum = -1;
 
 	public static PlayServices playServices;
 

@@ -1,6 +1,7 @@
 package com.adamhun11.wordpuzzle.Game;
 
 import com.adamhun11.wordpuzzle.Main;
+import com.adamhun11.wordpuzzle.Screens.Menu;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
@@ -41,7 +42,7 @@ public class MultiplayerGameLogic {
 
     int col, row;
 
-    int lvlNum;
+    int lvlNum = 0;
 
     public int addCoin;
 
@@ -54,6 +55,9 @@ public class MultiplayerGameLogic {
     float fadeFloat;
 
     float time = 0;
+    float beforeTimer = 0;
+    public int steps;
+    boolean setUp = false;
 
     public MultiplayerGameLogic(Main g, Stage s, int lvlNum){
         game = g;
@@ -61,8 +65,6 @@ public class MultiplayerGameLogic {
         shapeRenderer = new ShapeRenderer();
         stage = s;
         this.lvlNum = lvlNum;
-        init(lvlNum);
-
         shapeRenderer.setProjectionMatrix(stage.getCamera().combined);
         spriteBatch.setProjectionMatrix(stage.getCamera().combined);
 
@@ -71,6 +73,8 @@ public class MultiplayerGameLogic {
     }
 
     public void init(int lvlNum){
+        if (lvlNum > Levels.levels.size - 1) game.setScreen(new Menu(game));
+        steps = 0;
         solved = false; endTransition = false;
         addCoin = 0;
         game.opponent_time = 0;
@@ -147,15 +151,23 @@ public class MultiplayerGameLogic {
                 }
                 if (dc == touchCol && dr < touchRow) {
                     moveLeft(i);
+                    steps++;
+                    game.playServices.sendResult(steps, 0);
                 }
                 if (dc == touchCol && dr > touchRow) {
                     moveRight(i);
+                    steps++;
+                    game.playServices.sendResult(steps, 0);
                 }
                 if (dc < touchCol && dr == touchRow) {
                     moveUp(i);
+                    steps++;
+                    game.playServices.sendResult(steps, 0);
                 }
                 if (dc > touchCol && dr == touchRow) {
                     moveDown(i);
+                    steps++;
+                    game.playServices.sendResult(steps, 0);
                 }
 
 
@@ -174,22 +186,29 @@ public class MultiplayerGameLogic {
     }
 
     public void update(float dt){
-        transition = false;
-        for (int i = 0; i < letters.size; i++){
-            letters.get(i).update(dt);
-            if (letters.get(i).speedX != 0 || letters.get(i).speedY != 0) transition = true;
-        }
-        if (!transition) {
-            //start transition
-            if (fadeFloat > 0 && !solved) fadeFloat -= size * 10 * dt;
-            if (endTransition){
-                for (Letter l : letters) l.endTransition = true;
-                fadeFloat += size * 10 * dt;
-                if (offsetY - fadeFloat + col * size < 0){
-                    init(lvlNum);
+        if (game.levelNum > 0) {
+            if (!setUp){
+                lvlNum = game.levelNum;
+                init(lvlNum);
+                setUp = true;
+            }
+            transition = false;
+            for (int i = 0; i < letters.size; i++) {
+                letters.get(i).update(dt);
+                if (letters.get(i).speedX != 0 || letters.get(i).speedY != 0) transition = true;
+            }
+            if (!transition) {
+                //start transition
+                if (fadeFloat > 0 && !solved) fadeFloat -= size * 10 * dt;
+                if (endTransition) {
+                    for (Letter l : letters) l.endTransition = true;
+                    fadeFloat += size * 10 * dt;
+                    if (offsetY - fadeFloat + col * size < 0) {
+                        init(lvlNum);
+                    }
+                } else {
+                    inputHandler();
                 }
-            } else {
-                inputHandler();
             }
         }
     }
@@ -198,70 +217,142 @@ public class MultiplayerGameLogic {
     public void render(float delta) {
         Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        time += delta;
 
-        if (!Levels.levels.get(lvlNum - 1).letterTexture.equals("white")) {
-            spriteBatch.begin();
-            spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-            spriteBatch.end();
-        }
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(mapColor);
-        for (int i = 0; i < col; i++){
-            for (int j = 0; j < row; j++)
-            {
-                if (!map[i][j].equals("X")) {
-                    boolean a, b, c, d;
-                    a = b = c = d = false;
-                    if (i == 0 && j == 0){
-                        if (!map[i + 1][j].equals("X")) { a = true; b = true;}
-                        if (!map[i][j + 1].equals("X")) { b = true; c = true;}
-                    } else if (i == 0 && j == row - 1){
-                        if (!map[i + 1][j].equals("X")) { a = true; b = true;}
-                        if (!map[i][j - 1].equals("X")) { a = true; d = true;}
-                    } else if (i == col - 1 && j == 0){
-                        if (!map[i - 1][j].equals("X")) { d = true; c = true;}
-                        if (!map[i][j + 1].equals("X")) { b = true; c = true;}
-                    } else if (i == col - 1 && j == row - 1){
-                        if (!map[i - 1][j].equals("X")) { d = true; c = true;}
-                        if (!map[i][j - 1].equals("X")) { a = true; d = true;}
-                    } else if (i == 0){
-                        if (!map[i + 1][j].equals("X")) { a = true; b = true;}
-                        if (!map[i][j + 1].equals("X")) { b = true; c = true;}
-                        if (!map[i][j - 1].equals("X")) { a = true; d = true;}
-                    } else if (i == col - 1){
-                        if (!map[i - 1][j].equals("X")) { d = true; c = true;}
-                        if (!map[i][j + 1].equals("X")) { b = true; c = true;}
-                        if (!map[i][j - 1].equals("X")) { a = true; d = true;}
-                    } else if (j == 0){
-                        if (!map[i - 1][j].equals("X")) { d = true; c = true;}
-                        if (!map[i][j + 1].equals("X")) { b = true; c = true;}
-                        if (!map[i + 1][j].equals("X")) { a = true; b = true;}
-                    } else if (j == row - 1){
-                        if (!map[i - 1][j].equals("X")) { d = true; c = true;}
-                        if (!map[i][j - 1].equals("X")) { a = true; d = true;}
-                        if (!map[i + 1][j].equals("X")) { a = true; b = true;}
-                    } else if (i > 0 && i < col - 1 && j > 0 && j < row - 1){
-                        if (!map[i + 1][j].equals("X")) { a = true; b = true;}
-                        if (!map[i][j + 1].equals("X")) { b = true; c = true;}
-                        if (!map[i - 1][j].equals("X")) { d = true; c = true;}
-                        if (!map[i][j - 1].equals("X")) { a = true; d = true;}
+        if (game.levelNum > 0) {
+            time += delta;
+                spriteBatch.begin();
+                spriteBatch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                spriteBatch.end();
+
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(mapColor);
+            for (int i = 0; i < col; i++) {
+                for (int j = 0; j < row; j++) {
+                    if (!map[i][j].equals("X")) {
+                        boolean a, b, c, d;
+                        a = b = c = d = false;
+                        if (i == 0 && j == 0) {
+                            if (!map[i + 1][j].equals("X")) {
+                                a = true;
+                                b = true;
+                            }
+                            if (!map[i][j + 1].equals("X")) {
+                                b = true;
+                                c = true;
+                            }
+                        } else if (i == 0 && j == row - 1) {
+                            if (!map[i + 1][j].equals("X")) {
+                                a = true;
+                                b = true;
+                            }
+                            if (!map[i][j - 1].equals("X")) {
+                                a = true;
+                                d = true;
+                            }
+                        } else if (i == col - 1 && j == 0) {
+                            if (!map[i - 1][j].equals("X")) {
+                                d = true;
+                                c = true;
+                            }
+                            if (!map[i][j + 1].equals("X")) {
+                                b = true;
+                                c = true;
+                            }
+                        } else if (i == col - 1 && j == row - 1) {
+                            if (!map[i - 1][j].equals("X")) {
+                                d = true;
+                                c = true;
+                            }
+                            if (!map[i][j - 1].equals("X")) {
+                                a = true;
+                                d = true;
+                            }
+                        } else if (i == 0) {
+                            if (!map[i + 1][j].equals("X")) {
+                                a = true;
+                                b = true;
+                            }
+                            if (!map[i][j + 1].equals("X")) {
+                                b = true;
+                                c = true;
+                            }
+                            if (!map[i][j - 1].equals("X")) {
+                                a = true;
+                                d = true;
+                            }
+                        } else if (i == col - 1) {
+                            if (!map[i - 1][j].equals("X")) {
+                                d = true;
+                                c = true;
+                            }
+                            if (!map[i][j + 1].equals("X")) {
+                                b = true;
+                                c = true;
+                            }
+                            if (!map[i][j - 1].equals("X")) {
+                                a = true;
+                                d = true;
+                            }
+                        } else if (j == 0) {
+                            if (!map[i - 1][j].equals("X")) {
+                                d = true;
+                                c = true;
+                            }
+                            if (!map[i][j + 1].equals("X")) {
+                                b = true;
+                                c = true;
+                            }
+                            if (!map[i + 1][j].equals("X")) {
+                                a = true;
+                                b = true;
+                            }
+                        } else if (j == row - 1) {
+                            if (!map[i - 1][j].equals("X")) {
+                                d = true;
+                                c = true;
+                            }
+                            if (!map[i][j - 1].equals("X")) {
+                                a = true;
+                                d = true;
+                            }
+                            if (!map[i + 1][j].equals("X")) {
+                                a = true;
+                                b = true;
+                            }
+                        } else if (i > 0 && i < col - 1 && j > 0 && j < row - 1) {
+                            if (!map[i + 1][j].equals("X")) {
+                                a = true;
+                                b = true;
+                            }
+                            if (!map[i][j + 1].equals("X")) {
+                                b = true;
+                                c = true;
+                            }
+                            if (!map[i - 1][j].equals("X")) {
+                                d = true;
+                                c = true;
+                            }
+                            if (!map[i][j - 1].equals("X")) {
+                                a = true;
+                                d = true;
+                            }
+                        }
+                        //shapeRenderer.rect(j * size + offsetX, (col - i) * size - size + offsetY, size, size);
+                        roundedRect(j * size + offsetX, (col - i) * size - size + offsetY - fadeFloat, size, size, size / 6, a, b, c, d);
                     }
-                    //shapeRenderer.rect(j * size + offsetX, (col - i) * size - size + offsetY, size, size);
-                    roundedRect(j * size + offsetX, (col - i) * size - size + offsetY - fadeFloat, size, size, size / 6, a, b, c, d);
                 }
             }
-        }
-        // roundedRect(offsetX,4*size + offsetY,size,size,size/10, false, true, true, false);
-        shapeRenderer.end();
+            // roundedRect(offsetX,4*size + offsetY,size,size,size/10, false, true, true, false);
+            shapeRenderer.end();
 
-        spriteBatch.begin();
-        for (int i = 0; i < letters.size; i++){
-            letters.get(i).render(spriteBatch);
-            solvedLetters.get(i).render(spriteBatch);
+            spriteBatch.begin();
+            for (int i = 0; i < letters.size; i++) {
+                letters.get(i).render(spriteBatch);
+                solvedLetters.get(i).render(spriteBatch);
+            }
+            spriteBatch.end();
         }
-        spriteBatch.end();
     }
 
     public void roundedRect(float x, float y, float width, float height, float radius, boolean a, boolean b, boolean c, boolean d){

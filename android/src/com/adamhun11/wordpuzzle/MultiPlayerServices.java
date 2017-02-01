@@ -3,6 +3,7 @@ package com.adamhun11.wordpuzzle;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 
 import com.adamhun11.wordpuzzle.Game.Levels;
@@ -13,8 +14,10 @@ import com.badlogic.gdx.math.MathUtils;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.GamesActivityResultCodes;
 import com.google.android.gms.games.GamesStatusCodes;
+import com.google.android.gms.games.Player;
 import com.google.android.gms.games.multiplayer.Multiplayer;
 import com.google.android.gms.games.multiplayer.Participant;
+import com.google.android.gms.games.multiplayer.ParticipantBuffer;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessage;
 import com.google.android.gms.games.multiplayer.realtime.RealTimeMessageReceivedListener;
 import com.google.android.gms.games.multiplayer.realtime.Room;
@@ -26,6 +29,7 @@ import com.google.example.games.basegameutils.GameHelper;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,6 +42,7 @@ public class MultiPlayerServices extends GameHelper implements RoomUpdateListene
     private Activity activity;
     private String mRoomID;
     private Room mRoom;
+    private String mPlayerID;
     private Main game;
 
     public MultiPlayerServices(Activity activity, int clientsToUse) {
@@ -74,15 +79,37 @@ public class MultiPlayerServices extends GameHelper implements RoomUpdateListene
             if (response == Activity.RESULT_CANCELED || response == GamesActivityResultCodes.RESULT_LEFT_ROOM ){
                 Games.RealTimeMultiplayer.leave(getApiClient(), this, mRoomID);
                 activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            }else{
+            }else {
+                ArrayList<String> newList = new ArrayList<String>();
+
+                for (Participant p : mRoom.getParticipants()) {
+
+                    if (mRoom.getParticipantStatus(p.getParticipantId()) == Participant.STATUS_LEFT) {
+                    } else {
+                        newList.add(p.getParticipantId());
+                        Log.d("parts23", p.getParticipantId());
+                    }
+                }
+
+                Collections.sort(newList);
+                Log.d("asdf", mRoomID + "   " + mRoom.getRoomId() + "   " + Integer.toString(mRoom.getParticipants().size())+ "  " + newList.size());
+                Log.d("mskad", mRoom.getParticipantId(Games.Players.getCurrentPlayerId(getApiClient())));
+                if (newList.get(0).equals(mRoom.getParticipantId(Games.Players.getCurrentPlayerId(getApiClient())))){
+                   int n = MathUtils.random(6) + 1;
+                    Log.d("fsd", "sent t hell");
+                    game.setLevelNum(n);
+                    sendLevelNum(n);
+                }
+
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
-                    public void run () {
-                        game.setScreen(new MultiplayerGameScreen(game, 1));
+                    public void run() {
+                        Log.d("run3120", Integer.toString(game.levelNum));
+
+                        game.setScreen(new MultiplayerGameScreen(game, game.levelNum));
                     }
                 });
             }
-
         }
         else if (request == MultiPlayerServices.RC_SELECT_PLAYERS){
             if (response != Activity.RESULT_OK) {
@@ -136,20 +163,19 @@ public class MultiPlayerServices extends GameHelper implements RoomUpdateListene
         }else{
             Gdx.app.log("R", "Joined Room");
         }
+        mRoomID = arg1.getRoomId();
 
 
     }
 
     @Override
     public void onLeftRoom(int arg0, String arg1) {
-        BaseGameUtils.makeSimpleDialog(activity, "Abandonado partida");
-        Gdx.app.log("LEAVE", "Me fui de la Room");
 
     }
 
     @Override
     public void onRoomConnected(int arg0, Room arg1) {
-        // TODO Auto-generated method stub
+        mRoomID = arg1.getRoomId();
 
     }
 
@@ -171,6 +197,8 @@ public class MultiPlayerServices extends GameHelper implements RoomUpdateListene
             Gdx.app.log("R", "Room Created");
             mRoomID = arg1.getRoomId();
             mRoom = arg1;
+            mPlayerID = arg1.getParticipants().get(0).getParticipantId();
+            Log.d("PARTIC ID", mPlayerID);
             Intent i = Games.RealTimeMultiplayer.getWaitingRoomIntent(getApiClient(), arg1, 2);
             this.activity.startActivityForResult(i, RC_WAITING_ROOM);
         }
@@ -180,7 +208,8 @@ public class MultiPlayerServices extends GameHelper implements RoomUpdateListene
     public void sendResult(int steps,float time){
         try{
             byte[] mensaje;
-            mensaje = ByteBuffer.allocate(8).putInt(steps).putFloat(time).array();
+            mensaje = ByteBuffer.allocate(12).putInt(steps).putFloat(time).putInt(1).array();
+            Log.d("sensresult", "sda");
             Games.RealTimeMultiplayer.sendUnreliableMessageToOthers(getApiClient(), mensaje, mRoomID);
         }catch(Exception e){
 
@@ -202,18 +231,21 @@ public class MultiPlayerServices extends GameHelper implements RoomUpdateListene
         int steps;
         float time;
         byte[] b = rtm.getMessageData();
-        BaseGameUtils.makeSimpleDialog(activity, Integer.toString(b.length));
         ByteBuffer bf = ByteBuffer.wrap(b);
 
             steps = bf.getInt();
             time = bf.getFloat();
+        Log.d("msg123231", "MSG");
             game.updateSteps(steps, time);
+        game.setLevelNum(bf.getInt());
+
     }
 
     @Override
     public void onConnectedToRoom(Room arg0) {
         // TODO Auto-generated method stub
-
+        mRoomID = arg0.getRoomId();
+        mRoom = arg0;
     }
 
     @Override

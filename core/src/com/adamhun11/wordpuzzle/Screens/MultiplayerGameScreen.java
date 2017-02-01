@@ -19,6 +19,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
+import sun.rmi.runtime.Log;
+
+
 /**
  * Created by Adam on 2017. 01. 29..
  */
@@ -40,6 +43,14 @@ public class MultiplayerGameScreen implements Screen {
     Preferences prefs;
 
     TextButton coinLabel;
+    Table coinTable;
+
+    boolean setUp = false;
+
+    TextButton clock, opponentSteps;
+    float t1 = 0, clockTime = 300;
+
+    boolean isLost = false;
 
     public MultiplayerGameScreen(Main g, int lvlNum) {
         stage = new Stage();
@@ -58,6 +69,9 @@ public class MultiplayerGameScreen implements Screen {
         skin.add("transparent", new Texture("GUI/transparent.png"));
         skin.add("tablebg", new Texture("GUI/menus/table.png"));
         skin.add("skip", new Texture("GUI/buttons/skip.png"));
+        skin.add("col", new Texture("GUI/buttons/collectCoins.png"));
+        skin.add("youwonbg", new Texture("GUI/menus/youwon.png"));
+        skin.add("home", new Texture("GUI/buttons/home.png"));
 
         coinSkin = new Skin();
         coinSkin.add("coinbg", new Texture("GUI/coins.png"));
@@ -81,27 +95,7 @@ public class MultiplayerGameScreen implements Screen {
             stage.addActor(image);
         }*/
 
-        Table coinTable = new Table();
-        Image coins = new Image(new Texture("GUI/coins.png"));
-        coinTable.setSize(coins.getWidth() * ((399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() / coins.getHeight()) * wx, (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx);
-        coins.setSize(coins.getWidth() * ((399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() / coins.getHeight()) * wx, (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx);
-        coins.setPosition(0, Gdx.graphics.getHeight() - (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx - coins.getHeight());
-        coinTable.setPosition(0, Gdx.graphics.getHeight() - (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx - coins.getHeight());
 
-        prefs = Gdx.app.getPreferences("datas");
-        Label.LabelStyle labelStyle = new Label.LabelStyle();
-        labelStyle.font = coinSkin.getFont("default");
-        coinLabel = createCoinButton("transparent");
-        coinLabel.getLabel().setText(Integer.toString(prefs.getInteger("coins", 0)));
-        coinLabel.getLabel().setFontScale(0.28f - 0.02f * Integer.toString(prefs.getInteger("coins", 0)).length());
-        coinLabel.setName("coinLabel");
-
-        coinTable.add(coinLabel).padLeft(25 * wx);
-
-        coinTable.setSkin(coinSkin);
-        coinTable.setBackground("coinbg");
-
-        stage.addActor(coinTable);
 
 
         initButtons();
@@ -140,12 +134,45 @@ public class MultiplayerGameScreen implements Screen {
         TextButton exit = createTextButton("exit");
         exit.addListener(new ChangeListener() {
             public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                game.playServices.leaveRoom();
                 game.setScreen(new Menu(game));
             }
         });
         pauseTable.add(exit).width(Gdx.graphics.getWidth() / 3f).height( Gdx.graphics.getWidth() / 4f / resume.getWidth() * resume.getHeight()).padBottom(20);
         pauseTable.setSkin(skin);
         pauseTable.setBackground("bg");
+
+        //CLOCK
+        clock = createCoinButton("transparent");
+        clock.setPosition(Gdx.graphics.getWidth() / 2 - 10 * wx, Gdx.graphics.getHeight() / 10 * 7.8f);
+        clock.getLabel().setFontScale(0.5f);
+        clock.getLabel().setColor(Color.BLACK);
+        clock.setText("5:00");
+        stage.addActor(clock);
+
+
+        //WIN
+        Table winTable = new Table();
+        winTable.setSize(Gdx.graphics.getWidth() / 1.5f, Gdx.graphics.getHeight() / 2);
+        //winTable.addAction(Actions.fadeOut(0));
+        winTable.setSkin(skin);
+        winTable.setBackground("youwonbg");
+        winTable.setPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+
+        TextButton collect = createTextButton("col");
+        winTable.add(collect).width(wx * collect.getWidth() / 1.4f).height(hx * collect.getHeight() / 1.4f).padTop(90 * hx);
+
+        TextButton home = createTextButton("home");
+        home.addListener(new ChangeListener() {
+            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                game.setScreen(new Menu(game));
+            }
+        });
+        winTable.add(home).width(wx * home.getWidth() / 3).height(hx * home.getHeight() / 3).padLeft(20 * wx).padTop(90 * hx);
+
+        winTable.setPosition(Gdx.graphics.getWidth() / 2 - Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 2 - Gdx.graphics.getHeight() / 4);
+        stage.addActor(winTable);
+
     }
     private TextButton createTextButton(String name){
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
@@ -185,18 +212,75 @@ public class MultiplayerGameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        if (game.opponent_time != 0) {
-            paused = false;
-            game.playServices.leaveRoom();
-        }
+        initLvLVariables();
+
+        checkLoose(delta);
+
         if (!paused && game.opponent_time == 0) {
             gameLogic.update(delta);
         }
 
 
+
+
+
         gameLogic.render(delta);
         stage.draw();
         stage.act();
+    }
+
+    private void checkLoose(float delta){
+        if (game.opponent_time != 0) {
+            paused = false;
+            game.playServices.leaveRoom();
+        } else{
+            updateClock(delta);
+        }
+    }
+
+    private void updateClock(float delta) {
+        if (clockTime <= 0) isLost = true;
+        if (!isLost) {
+            t1 += delta;
+            if (t1 >= 1) {
+                t1 = 0;
+                clockTime--;
+                int min = (int) clockTime / 60;
+                int sec = (int) clockTime - ((int) clockTime / 60) * 60;
+                if (sec < 10)
+                    clock.setText(Integer.toString(min) + " : 0" + Integer.toString(sec));
+                else clock.setText(Integer.toString(min) + " : " + Integer.toString(sec));
+
+            }
+
+        }
+    }
+    private void initLvLVariables(){
+        if (game.levelNum > 0 && !setUp){
+            setUp = true;
+            int lvlNum = game.levelNum;
+            coinTable = new Table();
+            Image coins = new Image(new Texture("GUI/coins.png"));
+            coinTable.setSize(coins.getWidth() * ((399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() / coins.getHeight()) * wx, (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx);
+            coins.setSize(coins.getWidth() * ((399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() / coins.getHeight()) * wx, (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx);
+            coins.setPosition(0, Gdx.graphics.getHeight() - (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx - coins.getHeight());
+            coinTable.setPosition(0, Gdx.graphics.getHeight() - (399f / 10 * 4.5f) / Levels.levels.get(lvlNum - 1).word.length() * wx - coins.getHeight());
+
+            prefs = Gdx.app.getPreferences("datas");
+            Label.LabelStyle labelStyle = new Label.LabelStyle();
+            labelStyle.font = coinSkin.getFont("default");
+            coinLabel = createCoinButton("transparent");
+            coinLabel.getLabel().setText(Integer.toString(prefs.getInteger("coins", 0)));
+            coinLabel.getLabel().setFontScale(0.28f - 0.02f * Integer.toString(prefs.getInteger("coins", 0)).length());
+            coinLabel.setName("coinLabel");
+
+            coinTable.add(coinLabel).padLeft(25 * wx);
+
+            coinTable.setSkin(coinSkin);
+            coinTable.setBackground("coinbg");
+
+            stage.addActor(coinTable);
+        }
     }
 
 

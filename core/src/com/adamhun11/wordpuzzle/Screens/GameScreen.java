@@ -67,6 +67,7 @@ public class GameScreen implements Screen {
         skin.add("tablebg", new Texture("GUI/menus/table.png"));
         skin.add("skip", new Texture("GUI/buttons/skip.png"));
 
+
         coinSkin = new Skin();
         coinSkin.add("coinbg", new Texture("GUI/coins.png"));
 
@@ -102,7 +103,6 @@ public class GameScreen implements Screen {
         coinLabel = createCoinButton("transparent");
         coinLabel.getLabel().setText(Integer.toString(prefs.getInteger("coins", 0)));
         coinLabel.getLabel().setFontScale(0.28f - 0.02f * Integer.toString(prefs.getInteger("coins", 0)).length());
-        coinLabel.setName("coinLabel");
 
         coinTable.add(coinLabel).padLeft(25 * wx);
 
@@ -118,6 +118,8 @@ public class GameScreen implements Screen {
 
         gameLogic = new com.adamhun11.wordpuzzle.Game.GameLogic(game, stage, lvlNum);
         stage.addAction(Actions.sequence(Actions.fadeOut(0f), Actions.fadeIn(0.5f)));
+
+
     }
 
     private void initButtons(){
@@ -195,14 +197,13 @@ public class GameScreen implements Screen {
         costLabel.setSize(costLabel.getWidth() * wx / 4, costLabel.getHeight() * hx / 4);
         skipLevelTable.add(costLabel);
 
-
     }
     private TextButton createTextButton(String name){
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = skin.newDrawable(name, Color.GREEN);
-        textButtonStyle.down = skin.newDrawable(name, Color.DARK_GRAY);
-        textButtonStyle.checked = skin.newDrawable(name, Color.GREEN);
-        textButtonStyle.over = skin.newDrawable(name, Color.GREEN);
+        textButtonStyle.up = skin.newDrawable(name, Color.WHITE);
+        textButtonStyle.down = skin.newDrawable(name, new Color(0.9f, 0.9f, 0.9f, 1));
+        textButtonStyle.checked = skin.newDrawable(name, new Color(0.9f, 0.9f, 0.9f, 1));
+        textButtonStyle.over = skin.newDrawable(name, new Color(0.9f, 0.9f, 0.9f, 1));
         textButtonStyle.font = skin.getFont("default");
 
         textButtonStyle.font = skin.getFont("default");

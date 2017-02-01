@@ -25,6 +25,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 
+import sun.rmi.runtime.Log;
+
 /**
  * Created by Adam on 2017. 01. 13..
  */
@@ -48,6 +50,10 @@ public class Menu implements Screen {
     Facebook facebook;
 
     int unlockedLevel;
+
+    boolean inMulti = false;
+
+    float timer = 0;
 
 
     public Menu(Main g){
@@ -80,6 +86,9 @@ public class Menu implements Screen {
         skin.add("fb", game.assets.get("GUI/buttons/fb.png", Texture.class));
         skin.add("achievements", game.assets.get("GUI/buttons/achievements.png"), Texture.class);
         skin.add("leaderboard", new Texture("GUI/buttons/leaderboard.png"));
+        skin.add("up", new Texture("GUI/buttons/up.png"));
+        skin.add("down", new Texture("GUI/buttons/down.png"));
+        skin.add("multiplayer", new Texture("GUI/buttons/multiplayer.png"));
 
         Image image = new Image(circle);
         image.setSize(200 * wx, 200 * wx);
@@ -164,6 +173,68 @@ public class Menu implements Screen {
             }
         });
         stage.addActor(leaderboardButton);
+
+        //UP selector button
+        textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.newDrawable("up", Color.GREEN);
+        textButtonStyle.down = skin.newDrawable("up", Color.DARK_GRAY);
+        textButtonStyle.checked = skin.newDrawable("up", Color.GREEN);
+        textButtonStyle.over = skin.newDrawable("up", Color.LIME);
+        textButtonStyle.font = new BitmapFont();
+        skin.add("default", textButtonStyle);
+
+        final TextButton upButton = new TextButton("",textButtonStyle);
+        upButton.setSize(wx * 75, hx * 75);
+        upButton.setPosition(200 * wx - upButton.getWidth() * 2, 320 * hx);
+        upButton.addListener(new ChangeListener() {
+            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                scrollPane.layout();
+                scrollPane.setScrollPercentY(((int)((scrollPane.getScrollY()) / ((96 + 100) * wx)) - 1) * (96 + 100) * wx / (2162 * wx));
+            }
+        });
+        stage.addActor(upButton);
+
+        //DOWN selector button
+        textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.newDrawable("down", Color.GREEN);
+        textButtonStyle.down = skin.newDrawable("down", Color.DARK_GRAY);
+        textButtonStyle.checked = skin.newDrawable("down", Color.GREEN);
+        textButtonStyle.over = skin.newDrawable("down", Color.LIME);
+        textButtonStyle.font = new BitmapFont();
+        skin.add("default", textButtonStyle);
+
+        final TextButton downButton = new TextButton("",textButtonStyle);
+        downButton.setSize(wx * 75, hx * 75);
+        downButton.setPosition(200 * wx + downButton.getWidth(), 280 * hx);
+        downButton.addListener(new ChangeListener() {
+            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                scrollPane.layout();
+                scrollPane.setScrollPercentY(((int)((scrollPane.getScrollY()) / ((96 + 100) * wx)) + 1) * (96 + 100) * wx / (2162 * wx));
+            }
+        });
+        stage.addActor(downButton);
+
+        //MULTIPLAYER buttons
+        textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.newDrawable("multiplayer", Color.GREEN);
+        textButtonStyle.down = skin.newDrawable("multiplayer", Color.DARK_GRAY);
+        textButtonStyle.checked = skin.newDrawable("multiplayer", Color.GREEN);
+        textButtonStyle.over = skin.newDrawable("multiplayer", Color.LIME);
+        textButtonStyle.font = new BitmapFont();
+        skin.add("default", textButtonStyle);
+
+        final TextButton multiplayerButton = new TextButton("",textButtonStyle);
+        multiplayerButton.setSize(wx * 75, hx * 75);
+        multiplayerButton.setPosition(200 * wx - multiplayerButton.getWidth() / 2, 200 * hx - multiplayerButton.getHeight());
+        multiplayerButton.addListener(new ChangeListener() {
+            public void changed (ChangeListener.ChangeEvent event, Actor actor) {
+                if (game.playServices.isSignedIn() && !inMulti){
+                    game.playServices.quickGame();
+                    inMulti = true;
+                } else game.playServices.signIn();
+            }
+        });
+        stage.addActor(multiplayerButton);
     }
 
     private TextButton createTextButton(String name, int num){
@@ -185,8 +256,6 @@ public class Menu implements Screen {
             button.addListener(new ChangeListener() {
                 public void changed(ChangeListener.ChangeEvent event, Actor actor) {
                     game.setScreen(new GameScreen(game, lvl));
-                    /*if (game.playServices.isSignedIn())
-                    game.playServices.quickGame();*/
                 }
             });
         } else button.getLabel().setColor(Color.DARK_GRAY);
@@ -206,27 +275,15 @@ public class Menu implements Screen {
     public void render(float delta) {
         Gdx.gl.glClearColor(Color.ORANGE.r, Color.ORANGE.g, Color.ORANGE.b, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        if (inMulti) {
+            timer += delta;
+            if (timer > 10f) {
+                inMulti = false;
+                timer = 0;
+            }
+        }
         stage.act();
-
-        //TODO Scroll to the next level number
-        /*if (Gdx.input.justTouched()) {
-            scrollPane.layout();
-scrollPane.setScrollPercentY(scrollPane.getScrollPercentY() + 1f/39);
-        }*/
-        /*if (scrollPane.getVelocityY() == 0 && scrollPane.getScrollPercentY() / 1/40 > 0.05){
-            scrollPane.setVelocityY(500);
-        }*/
-
-        //System.out.println (scrollPane.getScrollPercentY() * 100 % (100/40));
-
-
-       /* spriteBatch.begin();
-        circle.setSize(200 * wx, 200 * wx);
-        circle.setPosition(Gdx.graphics.getWidth() / 2 - 100 * wx, Gdx.graphics.getHeight() / 2 - 100 * hx);
-        circle.draw(spriteBatch);
-        spriteBatch.end();*/
-
-
 
         stage.draw();
     }
